@@ -1,7 +1,7 @@
 # Gallery: How to visualize computational mechanics 
 
 <p style="color:red; font-weight:bold;">
-⚠️ Warning: Please allow your browser some time to load the animated GIFs.
+⚠️ Warning: Please allow your browser some time to load the animated GIFs. ⚠️
 </p>
 
 
