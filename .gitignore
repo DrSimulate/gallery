@@ -1,10 +1,12 @@
 # ignore all data files
+*.tex
 *.txt
 
 # ignore all image files
 *.jpg
 *.jpeg
 *.png
+.*svg
 
 
 # ignore all video files

@@ -1,4 +1,4 @@
-# Gallery
+# Gallery: How to visualize computational mechanics 
 Welcome to the gallery of visualizations in computational mechanics. These visualizations were created as part of the development of a series of educational video resources on computational mechanics on [YouTube](https://www.youtube.com/@DrSimulate) (Ref. 2). Below, we highlight selected example animations along with their corresponding source code, generated using the Python libraries Matplotlib and Manim, as well as the 3D animation software Blender. More detailed explanations can be found in the accompanying publication (Ref. 1). 
 
 ## Matplotlib
