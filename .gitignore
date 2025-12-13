@@ -23,3 +23,7 @@
 
 # ignore venv
 *.venv*
+
+# ignore folders
+Tex/
+480p15/
