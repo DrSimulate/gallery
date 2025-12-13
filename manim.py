@@ -2,7 +2,7 @@ import numpy as np
 np.random.seed(0)
 from manim import *
 
-class Kinematics(MovingCameraScene):
+class Kinematics2D(MovingCameraScene):
     def construct(self):
         # constants
         TIMESCALE = 3.0
