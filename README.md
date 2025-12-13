@@ -11,6 +11,8 @@ from manim import *
 
 #### Example: Kinematics
 
+Description: We define a triangle in the reference configuration. This triangle is then deformed according to the deformation mapping `phi(X,t)` which depends on the time through the `ValueTracker`. 
+
 Video link: [https://youtu.be/dT30kLnQNUE](https://youtu.be/dT30kLnQNUE)
 
 ```python
