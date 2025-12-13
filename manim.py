@@ -143,9 +143,9 @@ class TensorComponents(MovingCameraScene):
 
         # animate
         self.wait(0.125)
-        self.play(alpha.animate.set_value(30 * DEGREES), run_time=3)
+        self.play(alpha.animate.set_value(30 * DEGREES), run_time=2)
         self.wait(0.25)
-        self.play(alpha.animate.set_value(0 * DEGREES), run_time=4)
+        self.play(alpha.animate.set_value(0 * DEGREES), run_time=2)
         self.wait(0.125)
 
 
