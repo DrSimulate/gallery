@@ -46,7 +46,7 @@ class Kinematics2D(MovingCameraScene):
 
 ## Software
 
-All presented animations were created using Matplotlib (version 3.10.1), ManimCE (version \texttt{0.18.1}), and Blender (version \texttt{4.5}).
+All presented animations were created using Matplotlib (version 3.10.1), ManimCE (version 0.18.1), and Blender (version 4.5).
 
 ## References
 
