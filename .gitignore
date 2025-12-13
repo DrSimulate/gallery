@@ -1,0 +1,24 @@
+# ignore all data files
+*.txt
+
+# ignore all image files
+*.jpg
+*.jpeg
+*.png
+
+
+# ignore all video files
+*.mov
+*.mp4
+
+# ignore all zip files
+*.zip
+
+# ignore all config files
+*.cfg
+
+# ignore chache
+*__pycache__*
+
+# ignore venv
+*.venv*
