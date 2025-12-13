@@ -5,6 +5,8 @@ Welcome to the gallery of visualizations in computational mechanics. These visua
 
 ## Manim
 
+In the following, we highlight example animations implemented in the [Manim Community Edition](https://github.com/ManimCommunity/manim). [Install ManimCE](https://github.com/ManimCommunity/manim?tab=readme-ov-file#installation) and import it in Python.
+
 ```python
 from manim import *
 ```
