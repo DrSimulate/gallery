@@ -9,22 +9,19 @@ Welcome to the gallery of visualizations in computational mechanics. These visua
 from manim import *
 ```
 
-#### Example: Kinematics
+#### Example: Kinematics 2D
 
 Description: We define a triangle in the reference configuration. This triangle is then deformed according to the deformation mapping `phi(X,t)` which depends on the time through the `ValueTracker`. 
 
 Video link: [https://youtu.be/dT30kLnQNUE](https://youtu.be/dT30kLnQNUE)
 
 ```python
+# full code in manim.py
 class Kinematics2D(MovingCameraScene):
     def construct(self):
-        # [...] (full code in manim.py)
         time = ValueTracker(0.00) # set a scalar parameter that evolves with time
-
         # reference configuration
         reference = Triangle().stretch(1.3, dim=1).move_to(2*UP + 1.25*RIGHT)
-        # [...] (full code in manim.py)
-
         # deformed configuration
         def phi(X,t):
             x0 = (1 - 0.25*t)*X[0] + t*(X[1]-2)**2 + 2.5*t
@@ -34,8 +31,6 @@ class Kinematics2D(MovingCameraScene):
         current = always_redraw(
             lambda: reference.copy().apply_function(lambda X: phi(X,time.get_value()))
         )
-        # [...] (full code in manim.py)
-
         # animate
         self.wait(.25)
         self.play(time.animate.set_value(1.00), rate_func=linear)
