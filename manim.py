@@ -27,7 +27,7 @@ class Kinematics2D(MovingCameraScene):
         self.add(coordinate_e)
 
         # time coordinate
-        time = ValueTracker(0.00)
+        time = ValueTracker(0.00) # set a scalar parameter that evolves with time
         position_t = DOWN*1.25 + LEFT*0.5
         arrow_t = Arrow(start=ORIGIN, end=5*RIGHT, buff=0.0).shift(position_t)
         label_t = MathTex(r"t").next_to(arrow_t, RIGHT, buff=0.1)

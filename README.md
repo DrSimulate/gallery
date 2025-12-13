@@ -5,9 +5,42 @@ Welcome to the gallery of visualizations in computational mechanics. These visua
 
 ## Manim
 
+```python
+from manim import *
+```
+
 #### Example: Kinematics
 
 Video link: [https://youtu.be/dT30kLnQNUE](https://youtu.be/dT30kLnQNUE)
+
+```python
+class Kinematics2D(MovingCameraScene):
+    def construct(self):
+        # [...] (full code in manim.py)
+        time = ValueTracker(0.00) # set a scalar parameter that evolves with time
+
+        # reference configuration
+        reference = Triangle().stretch(1.3, dim=1).move_to(2*UP + 1.25*RIGHT)
+        # [...] (full code in manim.py)
+
+        # deformed configuration
+        def phi(X,t):
+            x0 = (1 - 0.25*t)*X[0] + t*(X[1]-2)**2 + 2.5*t
+            x1 = (1 + 0.25*t)*X[1] + 0.25*t
+            x2 = X[2]
+            return (x0,x1,x2)
+        current = always_redraw(
+            lambda: reference.copy().apply_function(lambda X: phi(X,time.get_value()))
+        )
+        # [...] (full code in manim.py)
+
+        # animate
+        self.wait(.25)
+        self.play(time.animate.set_value(1.00), rate_func=linear)
+        self.wait(.5)
+        self.play(time.animate.set_value(0.00), rate_func=linear)
+        self.wait(.25)
+```
 
 ![Kinematics 2D](/media/videos/manim/1080p60/Kinematics2D_ManimCE_v0.18.1.gif)
 
