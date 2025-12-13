@@ -24,7 +24,7 @@ Description: We define a triangle in the reference configuration. This triangle 
 Video link: [https://youtu.be/dT30kLnQNUE](https://youtu.be/dT30kLnQNUE)
 
 ```python
-# full code in manim.py
+# !!! full code in manim.py !!!
 class Kinematics2D(MovingCameraScene):
     def construct(self):
         time = ValueTracker(0.00) # set a scalar parameter that evolves with time
