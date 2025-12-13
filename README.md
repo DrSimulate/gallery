@@ -49,6 +49,45 @@ class Kinematics2D(MovingCameraScene):
 
 ![Kinematics 2D](/media/videos/manim/1080p60/Kinematics2D_ManimCE_v0.18.1.gif)
 
+#### Example: Tensor Components
+
+Description: We visualize how the deformation gradient tensor transforms a set of unit vectors by illustrating their deformed images. In addition, we demonstrate how the tensor components change under a rotation of the basis. This example highlights that the physical transformation described by the tensor remains unchanged, even though its component representation depends on the chosen basis.
+
+Video link: [https://youtu.be/1GwAEnegaRs](https://youtu.be/1GwAEnegaRs)
+
+```python
+# !!! full code in manim.py !!!
+class TensorComponents(MovingCameraScene):
+    def construct(self):
+        F_np = np.array([[2.0, 1.0],[0.5, 1.5]])
+        F_3d = np.array([[2.0, 1.0, 0.0],[0.5, 1.5, 0.0],[0.0, 0.0, 1.0]])
+        alpha = ValueTracker(0.00) # set a scalar parameter that varies with the angle of rotation
+        # rotating grid
+        grid_rot = always_redraw(lambda:
+            GRID.copy().apply_matrix(Q(alpha.get_value()))
+        )
+        # tensor components
+        F_rot_text = always_redraw(lambda:
+            MathTex(r"\boldsymbol{F} = ", matrix2text(rotate_matrix(F_np,-alpha.get_value()))
+                            ).move_to(LEFT * 11)
+            )
+        # tensor visualization
+        scale = 2
+        Line_coords = scale * get_Line_coords()
+        lines = get_lines(ORIGIN,Line_coords,F_3d)
+        Volume = Circle(color=WHITE,stroke_width=6).scale(scale)
+        volume = Volume.copy().apply_function(lambda X: F_3d @ X)
+        self.add(grid_rot,F_rot_text,lines,volume)
+        # animate
+        self.wait(0.125)
+        self.play(alpha.animate.set_value(30 * DEGREES), run_time=3)
+        self.wait(0.25)
+        self.play(alpha.animate.set_value(0 * DEGREES), run_time=4)
+        self.wait(0.125)
+```
+
+![Tensor Components](/media/videos/manim/480p15/TensorComponents_ManimCE_v0.18.1.gif)
+
 ## Blender
 
 

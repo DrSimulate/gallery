@@ -1,3 +1,5 @@
+import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 import numpy as np
 np.random.seed(0)
 from manim import *
@@ -5,12 +7,12 @@ from manim import *
 class Kinematics2D(MovingCameraScene):
     def construct(self):
         # constants
-        TIMESCALE = 3.0
         Tex.set_default(font_size=32)
         MathTex.set_default(font_size=32)
         DecimalNumber.set_default(font_size=32)
+        TIMESCALE = 3.0
 
-        # camera setttings and background grid
+        # camera settings and background grid
         self.camera.frame.move_to(1.25*UP + 2.25*RIGHT)
         self.camera.frame.scale(0.75)
         self.camera.background_color = "#0A3D62"
@@ -27,7 +29,7 @@ class Kinematics2D(MovingCameraScene):
         self.add(coordinate_e)
 
         # time coordinate
-        time = ValueTracker(0.00) # set a scalar parameter that evolves with time
+        time = ValueTracker(0.00) # set a scalar parameter that varies with the time
         position_t = DOWN*1.25 + LEFT*0.5
         arrow_t = Arrow(start=ORIGIN, end=5*RIGHT, buff=0.0).shift(position_t)
         label_t = MathTex(r"t").next_to(arrow_t, RIGHT, buff=0.1)
@@ -99,89 +101,142 @@ class Kinematics2D(MovingCameraScene):
         self.play(time.animate.set_value(0.00), rate_func=linear)
         self.wait(.25)
 
+class TensorComponents(MovingCameraScene):
+    def construct(self):
+        # constants
+        Tex.set_default(font_size=96)
+        MathTex.set_default(font_size=96)
+        DecimalNumber.set_default(font_size=96)
+        F_np = np.array([[2.0, 1.0],[0.5, 1.5]])
+        F_3d = np.array([[2.0, 1.0, 0.0],[0.5, 1.5, 0.0],[0.0, 0.0, 1.0]])
 
-        # coordinates = get_coordinates(self)
-        # reference = get_reference()
-        # reference_shadow = get_reference_shadow(reference)
-        # time = ValueTracker(0.00)
-        # time_coordinate = get_time_coordinate(time)
-        # current = always_redraw(
-        #     lambda: reference.copy().apply_function(lambda X: phi_example1(X,time.get_value()))
-        # )
+        # camera settings and background grid
+        self.camera.frame.shift(LEFT * 5)
+        self.camera.frame.scale(0.75)
+        self.camera.background_color = "#0A3D62"
+        GRID = NumberPlane(x_range=[-20,20,1], y_range=[-20,20,1]).set_opacity(0.7)
+        GRID.z_index = -100
 
-        # X = MyDot(point=([1.0, 2.0, 0.]), color=GRAY_A)
-        # x = always_redraw(
-        #     lambda: MyDot(point=phi_example1(([1.0, 2.0, 0.]),time.get_value()), color=COLOR_BALL)
-        # )
+        self.camera.frame.scale(2)
+
+        alpha = ValueTracker(0.00) # set a scalar parameter that varies with the angle of rotation
+
+        # rotating grid
+        grid_rot = always_redraw(lambda:
+            GRID.copy().apply_matrix(Q(alpha.get_value()))
+        )
+
+        # tensor components
+        F_rot_text = always_redraw(lambda:
+            MathTex(r"\boldsymbol{F} = ", matrix2text(rotate_matrix(F_np,-alpha.get_value()))
+                            ).move_to(LEFT * 11)
+            )
         
-        # arrow_X = Arrow(start=ORIGIN, end=([1.0, 2.0, 0.]), buff=0, color=GRAY_A)
-        # label_X = MathTex(r"\boldsymbol{X}",color=GRAY_A
-        # ).next_to(arrow_X.get_center(), UP+2*RIGHT, buff=0.1
-        # )
+        # tensor visualization
+        scale = 2
+        Line_coords = scale * get_Line_coords()
+        lines = get_lines(ORIGIN,Line_coords,F_3d)
+        Volume = Circle(color=WHITE,stroke_width=6).scale(scale)
+        volume = Volume.copy().apply_function(lambda X: F_3d @ X)
         
-        # arrow_x = always_redraw(
-        #     lambda: Arrow(start=ORIGIN, end=phi_example1(([1.0, 2.0, 0.]),time.get_value()), buff=0, color=COLOR_BALL)
-        # )
-        # arrow_x_temp = Arrow(start=ORIGIN, end=phi_example1(([1.0, 2.0, 0.]),1.0), buff=0, color=COLOR_BALL)
-        # label_x = always_redraw(lambda: MathTex(r"\boldsymbol{x}",color=COLOR_BALL
-        # ).next_to(arrow_x.get_center(), DOWN+RIGHT, buff=0.1
-        # ))
-        # label_x_temp = MathTex(r"\boldsymbol{x}",color=COLOR_BALL
-        # ).next_to(arrow_x_temp.get_center(), DOWN+RIGHT, buff=0.1
-        # )
-        
-        # arrow_u = always_redraw(
-        #     lambda: Arrow(start=([1.0, 2.0, 0.]), end=phi_example1(([1.0, 2.0, 0.]),time.get_value()), buff=0, color=COLOR_DISP)
-        # )
-        # arrow_u_temp = Arrow(start=([1.0, 2.0, 0.]), end=phi_example1(([1.0, 2.0, 0.]),1.0), buff=0, color=COLOR_DISP)
-        # label_u = always_redraw(lambda: MathTex(r"\boldsymbol{u}",color=COLOR_DISP
-        # ).next_to(arrow_u.get_center(), UP+LEFT, buff=0.1
-        # ))
-        # label_u_temp = MathTex(r"\boldsymbol{u}",color=COLOR_DISP
-        # ).next_to(arrow_u_temp.get_center(), UP+LEFT, buff=0.1
-        # )
+        self.add(grid_rot,F_rot_text,lines,volume)
 
-        # formula_X = MathTex(r"\boldsymbol{X}=\begin{bmatrix}X_1\\X_2\\X_3\\\end{bmatrix}").move_to(LEFT*3 + 4*UP)
-        # formula_x = MathTex(r"\boldsymbol{x}=\begin{bmatrix}x_1\\x_2\\x_3\\\end{bmatrix}").move_to(RIGHT*7 + 4*UP) #.next_to(formula_X, RIGHT, buff=0.5)
+        # animate
+        self.wait(0.125)
+        self.play(alpha.animate.set_value(30 * DEGREES), run_time=3)
+        self.wait(0.25)
+        self.play(alpha.animate.set_value(0 * DEGREES), run_time=4)
+        self.wait(0.125)
 
-        # self.add(reference_shadow)
-        # self.add(current)
-        # self.add(coordinates)
-        # self.add(time_coordinate)
-        # self.wait(WAIT)
-        # self.play(FadeIn(X,x))
-        # self.wait(WAIT)
-        # self.play(time.animate.set_value(1.00), rate_func=linear, run_time=1.5)
-        # self.wait(WAIT)
-        # self.play(Create(arrow_X))
-        # self.play(Write(label_X))
-        # self.play(Write(formula_X))
-        # self.wait(WAIT)
-        # self.play(Create(arrow_x_temp))
-        # self.play(Write(label_x_temp))
-        # self.play(Write(formula_x))
-        # self.wait(WAIT)
-        # self.add(arrow_x,label_x)
-        # self.remove(arrow_x_temp,label_x_temp)
-        # self.play(time.animate.set_value(0.00), rate_func=linear, run_time=.75)
-        # self.wait(.25)
-        # self.play(time.animate.set_value(1.00), rate_func=linear, run_time=.75)
-        # self.wait(WAIT)
-        # self.play(FadeOut(label_X,formula_X,label_x,formula_x))
-        # self.wait(WAIT)
 
-        # NO DISPLACEMENT IN THIS VIDEO
-        # self.play(Create(arrow_u_temp))
-        # self.play(Write(label_u_temp))
-        # self.wait(WAIT)
-        # self.add(arrow_u,label_u)
-        # self.remove(arrow_u_temp,label_u_temp)
-        # self.play(time.animate.set_value(0.00), rate_func=linear, run_time=1.5)
-        # self.wait(WAIT)
-        # self.play(time.animate.set_value(1.00), rate_func=linear, run_time=1.5)
-        # self.wait(WAIT)
-        # self.play(time.animate.set_value(0.00), rate_func=linear, run_time=1.5)
-        # self.wait(WAIT)
-        # self.play(FadeOut(label_X,label_x,label_u))
-        # self.wait(WAIT)
+# helper functions
+def lighten_color(color, factor=2.):
+    if factor <= 1:
+        raise ValueError("Factor should be greater than 1 to lighten the color.")
+    lightened_color = tuple(min(c * factor, 1.0) for c in color)  # Ensure RGB values do not exceed 1
+    return lightened_color
 
+def get_hsv_color(value,MAX_VALUE=1):
+    if not 0 <= value <= MAX_VALUE:
+        raise ValueError("Input value must be between 0 and the maximum value.")
+    normalized_value = value / MAX_VALUE
+    normalized_value_temp = normalized_value + 0.5
+    if normalized_value_temp >= 1.0: normalized_value_temp -= 1.0
+    color = plt.cm.hsv(normalized_value_temp)
+    return mcolors.rgb2hex(lighten_color(color[:3]))
+
+def Q(alpha):
+    return np.array([[np.cos(alpha), np.sin(alpha)],
+                    [-np.sin(alpha),  np.cos(alpha)]])
+
+def rotate_matrix(F,alpha):
+    return Q(alpha) @ F @ Q(alpha).T
+
+def get_Line_coords(NUM_LINES=8*4):
+    angles = np.pi/2 + np.linspace(0, 2 * np.pi, NUM_LINES, endpoint=False) # Angles from 0 to 2π
+    Line_coords = np.array([np.cos(angles), np.sin(angles)]).T
+    Line_coords = np.hstack([Line_coords, np.zeros((Line_coords.shape[0], 1))])
+    return Line_coords
+
+def get_Lines(X_coord,Line_coords):
+    NUM_LINES = Line_coords.shape[0]
+    Lines = VGroup()
+    for i in range(NUM_LINES):
+        Lines.add(Arrow(
+            start=X_coord, end=X_coord+Line_coords[i],
+            buff=0, color=get_hsv_color(i,NUM_LINES), z_index=-10))
+    return Lines
+
+def get_lines(X_coord,Line_coords,F):
+    # note: time may be the ValueTracker()
+    NUM_LINES = Line_coords.shape[0]
+    def MyVGroup(X_coord,Line_coords,F):
+        lines = VGroup()
+        for i in range(NUM_LINES):
+            lines.add(Arrow(
+                start=X_coord,
+                end=X_coord+F @ Line_coords[i],
+                buff=0, color=get_hsv_color(i,NUM_LINES),z_index=30))
+        return lines
+    lines = MyVGroup(X_coord,Line_coords,F)
+    return lines
+
+def matrix2text(A,nd=2):
+    for i in range(A.shape[0]):
+        for j in range(A.shape[0]):
+            if np.abs(A[i][j]) < 1e-6: A[i][j] = 0
+    if A.shape[0] == 2:
+        s = (
+            r"\begin{bmatrix} " +
+            f"{A[0][0]:.{nd}f}" +
+            r"&" +
+            f"{A[0][1]:.{nd}f}" +
+            r"\\" +
+            f"{A[1][0]:.{nd}f}" +
+            r"&" +
+            f"{A[1][1]:.{nd}f}" +
+            r"\\\end{bmatrix}"
+        )
+    elif A.shape[0] == 3:
+        s = (
+            r"\begin{bmatrix} " +
+            f"{A[0][0]:.{nd}f}" +
+            r"&" +
+            f"{A[0][1]:.{nd}f}" +
+            r"&" +
+            f"{A[0][2]:.{nd}f}" +
+            r"\\" +
+            f"{A[1][0]:.{nd}f}" +
+            r"&" +
+            f"{A[1][1]:.{nd}f}" +
+            r"&" +
+            f"{A[1][2]:.{nd}f}" +
+            r"\\" +
+            f"{A[2][0]:.{nd}f}" +
+            r"&" +
+            f"{A[2][1]:.{nd}f}" +
+            r"&" +
+            f"{A[2][2]:.{nd}f}" +
+            r"\\\end{bmatrix}"
+        )
+    return s

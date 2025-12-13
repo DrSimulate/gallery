@@ -26,4 +26,6 @@
 
 # ignore folders
 Tex/
-480p15/
+
+# include files
+!media/videos/manim/480p15/TensorComponents_ManimCE_v0.18.1.gif
