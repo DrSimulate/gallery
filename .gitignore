@@ -8,7 +8,6 @@
 *.png
 .*svg
 
-
 # ignore all video files
 *.mov
 *.mp4

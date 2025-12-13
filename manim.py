@@ -11,7 +11,7 @@ class Kinematics2D(MovingCameraScene):
         DecimalNumber.set_default(font_size=32)
 
         # camera setttings and background grid
-        self.camera.frame.move_to(1.25*UP + 2*RIGHT)
+        self.camera.frame.move_to(1.25*UP + 2.25*RIGHT)
         self.camera.frame.scale(0.75)
         self.camera.background_color = "#0A3D62"
         GRID = NumberPlane(x_range=[-30,30,0.5], y_range=[-30,30,0.5]).set_opacity(0.7)
