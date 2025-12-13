@@ -9,7 +9,7 @@ Welcome to the gallery of visualizations in computational mechanics. These visua
 
 Video link: [https://youtu.be/dT30kLnQNUE](https://youtu.be/dT30kLnQNUE)
 
-![Kinematics 2D](/media/videos/manim/1080p60/Kinematics2D_ManimCE_v0.18.1)
+![Kinematics 2D](/media/videos/manim/1080p60/Kinematics2D_ManimCE_v0.18.1.gif)
 
 ## Blender
 
