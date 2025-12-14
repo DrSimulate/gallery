@@ -90,6 +90,13 @@ class TensorComponents(MovingCameraScene):
 
 ## Blender
 
+#### Example: Finite Element Results in Blender
+
+Description: The results of finite element simulations can be visualized in Blender. The example below shows a rubber specimen whose deformation was computed using the finite element method and subsequently exported to Blender.
+
+Video link: [https://youtu.be/svIs3-0t2LY](https://youtu.be/svIs3-0t2LY)
+
+![Dogbone Simulation Rubber](/media/videos/gifs/gif_dogbone_simulation_rubber.gif)
 
 ## Software
 
