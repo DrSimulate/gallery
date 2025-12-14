@@ -90,13 +90,21 @@ class TensorComponents(MovingCameraScene):
 
 ## Blender
 
-#### Example: Finite Element Results in Blender
+#### Example: Finite Element Simulation Results in Blender
 
-Description: The results of finite element simulations can be visualized in Blender. The example below shows a rubber specimen whose deformation was computed using the finite element method and subsequently exported to Blender.
+Description: The results of finite element simulations can be visualized in Blender. The example below shows a rubber specimen whose deformation was computed using the finite element method and subsequently exported from ParaView to Blender with the [Stop-motion-OBJ](https://github.com/neverhood311/Stop-motion-OBJ) add-on.
 
 Video link: [https://youtu.be/svIs3-0t2LY](https://youtu.be/svIs3-0t2LY)
 
 ![Dogbone Simulation Rubber](/media/videos/gifs/gif_dogbone_simulation_rubber.gif)
+
+#### Example: Imposed Object Deformation in Blender
+
+Description: Blender’s Python scripting interface allows direct modification and deformation of meshes. For example, a prescribed deformation mapping `phi(X,t)` can be applied to a predefined object, such as the water drop shown below.
+
+Video link: [https://youtu.be/1GwAEnegaRs](https://youtu.be/1GwAEnegaRs)
+
+![Water Drop](/media/videos/gifs/gif_water_drop.gif)
 
 ## Software
 
