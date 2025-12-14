@@ -88,6 +88,63 @@ class TensorComponents(MovingCameraScene):
 
 ![Tensor Components](/media/videos/manim/480p15/TensorComponents_ManimCE_v0.18.1.gif)
 
+#### Example: Finite Element Method
+
+Description:  An unknown function has infinitely many degrees of freedom prior to discretization. Finite element discretization reduces this to a finite number, which can be visualized by adjusting the associated parameters.
+
+Video link: [https://youtu.be/xZpESocdvn4](https://youtu.be/xZpESocdvn4)
+
+```python
+# !!! full code in manim.py !!!
+class FiniteElements(MovingCameraScene):
+    def construct(self):
+        variable1 = Variable(0, MathTex(r"u_0"), num_decimal_places=2).scale(0.5)
+        variable2 = Variable(0, MathTex(r"u_1"), num_decimal_places=2).scale(0.5)
+        variable3 = Variable(0, MathTex(r"u_2"), num_decimal_places=2).scale(0.5)
+        variable4 = Variable(0, MathTex(r"u_3"), num_decimal_places=2).scale(0.5)
+        variable5 = Variable(0, MathTex(r"u_4"), num_decimal_places=2).scale(0.5)
+        variable6 = Variable(0, MathTex(r"u_5"), num_decimal_places=2).scale(0.5)
+        ax_u = Axes(
+            x_range=[0, 1.05, 0.2],
+            y_range=[-0.5, 0.5, 1],
+            x_length=5.5,
+            y_length=1.75,
+            axis_config={"include_tip": False},
+        )
+        labels_u = VGroup(
+            MathTex(r"x").next_to(ax_u.coords_to_point(1.05, 0),RIGHT),
+            MathTex(r"u(x)").next_to(ax_u.coords_to_point(0, 0.5),UP,buff=0).shift(UP * 0.1),
+            )
+        graph_uN = ax_u.plot(lambda x : func_uN(x,np.array([variable1.tracker.get_value(),
+                                                            variable2.tracker.get_value(),
+                                                            variable3.tracker.get_value(),
+                                                            variable4.tracker.get_value(),
+                                                            variable5.tracker.get_value(),
+                                                            variable6.tracker.get_value()])), x_range=[0,1], use_smoothing=False, color=YELLOW)
+        
+        graph_uN.add_updater(lambda m : m.become(
+            ax_u.plot(lambda x : func_uN(x,np.array([variable1.tracker.get_value(),
+                                                     variable2.tracker.get_value(),
+                                                     variable3.tracker.get_value(),
+                                                     variable4.tracker.get_value(),
+                                                     variable5.tracker.get_value(),
+                                                     variable6.tracker.get_value()])), x_range=[0,1], use_smoothing=False, color=YELLOW)
+            ))
+        # animate
+        self.wait(0.125)
+        x_val = np.linspace(0,1,6)
+        u_val = func_u_sin(x_val)
+        self.wait()
+        self.play(variable1.tracker.animate.set_value(u_val[0]),
+                  variable2.tracker.animate.set_value(u_val[1]),
+                  variable3.tracker.animate.set_value(u_val[2]),
+                  variable4.tracker.animate.set_value(u_val[3]),
+                  variable5.tracker.animate.set_value(u_val[4]),
+                  variable6.tracker.animate.set_value(u_val[5]))
+```
+
+![Finite Elements](/media/videos/manim/1080p60/FiniteElements_ManimCE_v0.18.1.gif)
+
 ## Blender
 
 #### Example: Finite Element Simulation Results in Blender
