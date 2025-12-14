@@ -113,7 +113,7 @@ TOTAL_FRAMES = FPS * TOTAL_TIME
 # material
 mat = bpy.data.materials.new(name="Water")
 # define deformation
-def f(XYZ,t=0):
+def phi(XYZ,t=0):
     X = XYZ[0]
     Y = XYZ[1]
     Z = XYZ[2]
@@ -132,7 +132,7 @@ for frame in range(1,int(TOTAL_FRAMES)+1):
     mesh = obj.data
     reference = np.array([v.co[:] for v in mesh.vertices])
     for i, v in enumerate(mesh.vertices):
-        v.co = Vector(f(reference[i],t))
+        v.co = Vector(phi(reference[i],t))
     for face in mesh.polygons:
         face.use_smooth = True
     visible_on_frame(obj,frame)
