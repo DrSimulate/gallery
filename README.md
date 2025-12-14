@@ -106,10 +106,6 @@ Video link: [https://youtu.be/1GwAEnegaRs](https://youtu.be/1GwAEnegaRs)
 
 ```python
 # !!! full code in blender.py !!!
-# constants
-FPS = 60
-TOTAL_TIME = 1.5
-TOTAL_FRAMES = FPS * TOTAL_TIME
 # material
 mat = bpy.data.materials.new(name="Water")
 # define deformation
@@ -126,9 +122,6 @@ for frame in range(1,int(TOTAL_FRAMES)+1):
     t = frame / TOTAL_FRAMES
     bpy.ops.mesh.primitive_uv_sphere_add(radius=4)
     obj = bpy.context.active_object
-    subsurf = obj.modifiers.new(name="Subsurf", type='SUBSURF')
-    subsurf.levels = 2  # Viewport subdivisions
-    subsurf.render_levels = 2  # Render subdivisions
     mesh = obj.data
     reference = np.array([v.co[:] for v in mesh.vertices])
     for i, v in enumerate(mesh.vertices):
