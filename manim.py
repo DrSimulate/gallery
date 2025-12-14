@@ -148,6 +148,130 @@ class TensorComponents(MovingCameraScene):
         self.play(alpha.animate.set_value(0 * DEGREES), run_time=2)
         self.wait(0.125)
 
+class FiniteElements(MovingCameraScene):
+    def construct(self):
+        # constants
+        Tex.set_default(font_size=32)
+        MathTex.set_default(font_size=32)
+        DecimalNumber.set_default(font_size=32)
+
+        # camera settings and background grid
+        self.camera.frame.scale(0.5)
+        self.camera.background_color = "#0A3D62"
+
+        variable1 = Variable(0, MathTex(r"u_0"), num_decimal_places=2).scale(0.5)
+        variable2 = Variable(0, MathTex(r"u_1"), num_decimal_places=2).scale(0.5)
+        variable3 = Variable(0, MathTex(r"u_2"), num_decimal_places=2).scale(0.5)
+        variable4 = Variable(0, MathTex(r"u_3"), num_decimal_places=2).scale(0.5)
+        variable5 = Variable(0, MathTex(r"u_4"), num_decimal_places=2).scale(0.5)
+        variable6 = Variable(0, MathTex(r"u_5"), num_decimal_places=2).scale(0.5)
+        variable1.label.set_color(YELLOW)
+        variable2.label.set_color(YELLOW)
+        variable3.label.set_color(YELLOW)
+        variable4.label.set_color(YELLOW)
+        variable5.label.set_color(YELLOW)
+        variable6.label.set_color(YELLOW)
+        variable1.value.set_color(YELLOW)
+        variable2.value.set_color(YELLOW)
+        variable3.value.set_color(YELLOW)
+        variable4.value.set_color(YELLOW)
+        variable5.value.set_color(YELLOW)
+        variable6.value.set_color(YELLOW)
+
+        ax_u = Axes(
+            x_range=[0, 1.05, 0.2],
+            y_range=[-0.5, 0.5, 1],
+            x_length=5.5,
+            y_length=1.75,
+            axis_config={"include_tip": False},
+        )
+
+        labels_u = VGroup(
+            MathTex(r"x").next_to(ax_u.coords_to_point(1.05, 0),RIGHT),
+            MathTex(r"u(x)").next_to(ax_u.coords_to_point(0, 0.5),UP,buff=0).shift(UP * 0.1),
+            )
+
+        v_lines_u = get_v_lines(ax_u,[0.2,0.4,0.6,0.8,1])
+                
+        coord_u = VGroup(ax_u, labels_u, v_lines_u)
+        
+        func_N1, func_N2, func_N3, func_N4, func_N5, func_N6, func_uN, func_uNd, func_uNdd = get_func_uN()
+
+        variable1.next_to(ax_u.coords_to_point(0, variable1.tracker.get_value()),UP)
+        variable1.add_updater(lambda m : m.next_to(ax_u.coords_to_point(0, variable1.tracker.get_value()),UP))
+        variable2.next_to(ax_u.coords_to_point(0.2, variable2.tracker.get_value()),UP)
+        variable2.add_updater(lambda m : m.next_to(ax_u.coords_to_point(0.2, variable2.tracker.get_value()),UP))
+        variable3.next_to(ax_u.coords_to_point(0.4, variable3.tracker.get_value()),UP)
+        variable3.add_updater(lambda m : m.next_to(ax_u.coords_to_point(0.4, variable3.tracker.get_value()),UP))
+        variable4.next_to(ax_u.coords_to_point(0.6, variable4.tracker.get_value()),UP)
+        variable4.add_updater(lambda m : m.next_to(ax_u.coords_to_point(0.6, variable4.tracker.get_value()),UP))
+        variable5.next_to(ax_u.coords_to_point(0.8, variable5.tracker.get_value()),UP)
+        variable5.add_updater(lambda m : m.next_to(ax_u.coords_to_point(0.8, variable5.tracker.get_value()),UP))
+        variable6.next_to(ax_u.coords_to_point(1.0, variable6.tracker.get_value()),UP)
+        variable6.add_updater(lambda m : m.next_to(ax_u.coords_to_point(1.0, variable6.tracker.get_value()),UP))
+
+        graph_uN = ax_u.plot(lambda x : func_uN(x,np.array([variable1.tracker.get_value(),
+                                                            variable2.tracker.get_value(),
+                                                            variable3.tracker.get_value(),
+                                                            variable4.tracker.get_value(),
+                                                            variable5.tracker.get_value(),
+                                                            variable6.tracker.get_value()])), x_range=[0,1], use_smoothing=False, color=YELLOW)
+        
+        graph_uN.add_updater(lambda m : m.become(
+            ax_u.plot(lambda x : func_uN(x,np.array([variable1.tracker.get_value(),
+                                                     variable2.tracker.get_value(),
+                                                     variable3.tracker.get_value(),
+                                                     variable4.tracker.get_value(),
+                                                     variable5.tracker.get_value(),
+                                                     variable6.tracker.get_value()])), x_range=[0,1], use_smoothing=False, color=YELLOW)
+            ))
+        
+        self.add(
+            coord_u,
+            graph_uN,
+            variable1,
+            variable2,
+            variable3,
+            variable4,
+            variable5,
+            variable6,
+            )
+        
+        # animate
+        self.wait(0.125)
+        x_val = np.linspace(0,1,6)
+        u_val = func_u_sin(x_val)
+        self.wait()
+        self.play(variable1.tracker.animate.set_value(u_val[0]),
+                  variable2.tracker.animate.set_value(u_val[1]),
+                  variable3.tracker.animate.set_value(u_val[2]),
+                  variable4.tracker.animate.set_value(u_val[3]),
+                  variable5.tracker.animate.set_value(u_val[4]),
+                  variable6.tracker.animate.set_value(u_val[5]))
+        u_val = func_u_cos(x_val)
+        self.wait(0.25)
+        self.play(variable1.tracker.animate.set_value(u_val[0]),
+                  variable2.tracker.animate.set_value(u_val[1]),
+                  variable3.tracker.animate.set_value(u_val[2]),
+                  variable4.tracker.animate.set_value(u_val[3]),
+                  variable5.tracker.animate.set_value(u_val[4]),
+                  variable6.tracker.animate.set_value(u_val[5]))
+        u_val = func_u(x_val)
+        self.wait(0.25)
+        self.play(variable1.tracker.animate.set_value(u_val[0]),
+                  variable2.tracker.animate.set_value(u_val[1]),
+                  variable3.tracker.animate.set_value(u_val[2]),
+                  variable4.tracker.animate.set_value(u_val[3]),
+                  variable5.tracker.animate.set_value(u_val[4]),
+                  variable6.tracker.animate.set_value(u_val[5]))
+        self.wait(0.25)
+        self.play(variable1.tracker.animate.set_value(0),
+                  variable2.tracker.animate.set_value(0),
+                  variable3.tracker.animate.set_value(0),
+                  variable4.tracker.animate.set_value(0),
+                  variable5.tracker.animate.set_value(0),
+                  variable6.tracker.animate.set_value(0))
+        self.wait(0.125)
 
 # helper functions
 def lighten_color(color, factor=2.):
@@ -240,3 +364,102 @@ def matrix2text(A,nd=2):
             r"\\\end{bmatrix}"
         )
     return s
+
+# finite elements
+def func_u(x):
+    return - 0.5*x**2 + x
+
+def func_ud(x):
+    return - x + 1
+
+def func_udd(x):
+    return - 1
+
+def func_u_sin(x):
+    return np.sin(PI*x) * 0.5
+
+def func_u_cos(x):
+    return -np.cos(1/2*PI*x) + 0.5
+
+def get_func_uN():
+    def func_N1(x, factor=1):
+        if 0 <= x <= 0.2:
+            return (1-5*x) * factor
+        else:
+            return 0
+    
+    def func_N2(x, factor=1):
+        if 0 <= x <= 0.2:
+            return (5*x) * factor
+        elif 0.2 <= x <= 0.4:
+            return (1-5*(x-0.2)) * factor
+        else:
+            return 0
+    
+    def func_N3(x, factor=1):
+        if 0.2 <= x <= 0.4:
+            return (5*(x-0.2)) * factor
+        elif 0.4 <= x <= 0.6:
+            return (1-5*(x-0.4)) * factor
+        else:
+            return 0
+    
+    def func_N4(x, factor=1):
+        if 0.4 <= x <= 0.6:
+            return (5*(x-0.4)) * factor
+        elif 0.6 <= x <= 0.8:
+            return (1-5*(x-0.6)) * factor
+        else:
+            return 0
+    
+    def func_N5(x, factor=1):
+        if 0.6 <= x <= 0.8:
+            return (5*(x-0.6)) * factor
+        elif 0.8 <= x <= 1.0:
+            return (1-5*(x-0.8)) * factor
+        else:
+            return 0
+    
+    def func_N6(x, factor=1):
+        if 0.8 <= x <= 1.0:
+            return (5*(x-0.8)) * factor
+        else:
+            return 0
+    
+    def func_uN(x, u_values=np.zeros(6)):
+        u = func_N1(x, u_values[0])
+        u += func_N2(x, u_values[1])
+        u += func_N3(x, u_values[2])
+        u += func_N4(x, u_values[3])
+        u += func_N5(x, u_values[4])
+        u += func_N6(x, u_values[5])
+        return u
+    
+    def func_uNd(x, u_values=np.zeros(6)):
+        u_diff = np.diff(u_values) / 0.2
+        if 0 <= x <= 0.2:
+            u = u_diff[0]
+        elif 0.2 <= x <= 0.4:
+            u = u_diff[1]
+        elif 0.4 <= x <= 0.6:
+            u = u_diff[2]
+        elif 0.6 <= x <= 0.8:
+            u = u_diff[3]
+        elif 0.8 <= x <= 1:
+            u = u_diff[4]
+        return u
+    
+    def func_uNdd(x):
+        return 0
+    
+    return func_N1, func_N2, func_N3, func_N4, func_N5, func_N6, func_uN, func_uNd, func_uNdd
+
+def get_v_lines(ax,x):
+    y_min, y_max, _ = ax.y_range
+    v_lines = VGroup()
+    for i in x:
+        if y_min < 0:
+            v_lines += ax.get_vertical_line(ax.c2p(i, y_min, 0))
+        if y_max > 0:
+            v_lines += ax.get_vertical_line(ax.c2p(i, y_max, 0))
+    return v_lines
