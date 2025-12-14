@@ -104,6 +104,40 @@ Description: Blender’s Python scripting interface allows direct modification a
 
 Video link: [https://youtu.be/1GwAEnegaRs](https://youtu.be/1GwAEnegaRs)
 
+```python
+# !!! full code in blender.py !!!
+# constants
+FPS = 60
+TOTAL_TIME = 1.5
+TOTAL_FRAMES = FPS * TOTAL_TIME
+# material
+mat = bpy.data.materials.new(name="Water")
+# define deformation
+def f(XYZ,t=0):
+    X = XYZ[0]
+    Y = XYZ[1]
+    Z = XYZ[2]
+    x = (1 + 0.75*t)*X
+    y = Y
+    z = (1 - 0.25*t)*Z + 0.35*t*X**2 - 1.5*t
+    return np.array([x, y, z])
+# animate
+for frame in range(1,int(TOTAL_FRAMES)+1):
+    t = frame / TOTAL_FRAMES
+    bpy.ops.mesh.primitive_uv_sphere_add(radius=4)
+    obj = bpy.context.active_object
+    subsurf = obj.modifiers.new(name="Subsurf", type='SUBSURF')
+    subsurf.levels = 2  # Viewport subdivisions
+    subsurf.render_levels = 2  # Render subdivisions
+    mesh = obj.data
+    reference = np.array([v.co[:] for v in mesh.vertices])
+    for i, v in enumerate(mesh.vertices):
+        v.co = Vector(f(reference[i],t))
+    for face in mesh.polygons:
+        face.use_smooth = True
+    visible_on_frame(obj,frame)
+```
+
 ![Water Drop](/media/videos/gifs/gif_water_drop.gif)
 
 ## Software
