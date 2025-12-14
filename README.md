@@ -92,7 +92,7 @@ class TensorComponents(MovingCameraScene):
 
 #### Example: Finite Element Simulation Results in Blender
 
-Description: The results of finite element simulations can be visualized in Blender. The example below shows a rubber specimen whose deformation was computed using the finite element method and subsequently exported from [ParaView](https://www.paraview.org/) to Blender with the [Stop-motion-OBJ](https://github.com/neverhood311/Stop-motion-OBJ) add-on.
+Description: The results of finite element simulations can be visualized in Blender. The example below shows a rubber specimen whose deformation was computed using the finite element method and subsequently exported from [ParaView](https://www.paraview.org/) to [Blender](https://www.blender.org/) with the [Stop-motion-OBJ](https://github.com/neverhood311/Stop-motion-OBJ) add-on.
 
 Video link: [https://youtu.be/svIs3-0t2LY](https://youtu.be/svIs3-0t2LY)
 
@@ -135,7 +135,7 @@ for frame in range(1,int(TOTAL_FRAMES)+1):
 
 ## Software
 
-All presented animations were created using Matplotlib (version 3.10.1), ManimCE (version 0.18.1), and Blender (version 4.5).
+All presented animations were created using [Matplotlib](https://matplotlib.org/) (version 3.10.1), [ManimCE](https://github.com/manimCommunity/manim) (version 0.18.1), and [Blender](https://www.blender.org/) (version 4.5).
 
 ## References
 
