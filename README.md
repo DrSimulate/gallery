@@ -1,3 +1,6 @@
+
+![Banner](/media/images/banner.png)
+
 # Gallery: How to visualize computational mechanics 
 
 <p style="color:red; font-weight:bold;">
