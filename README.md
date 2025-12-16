@@ -31,6 +31,10 @@ Video link: [https://youtu.be/NtTVEzZS3Bg](https://youtu.be/NtTVEzZS3Bg)
 
 ```
 
+
+![Stress Tensor Components](/media/videos/gifs/gif_stress_components.gif)
+
+
 ## Manim
 
 In the following, we highlight example animations implemented in the [Manim Community Edition](https://github.com/ManimCommunity/manim). To run these examples, install ManimCE by following the [installation instructions](https://github.com/ManimCommunity/manim?tab=readme-ov-file#installation) and import it in Python.

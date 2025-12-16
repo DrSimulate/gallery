@@ -43,7 +43,7 @@ def plot_coo(ax,scale=.25,shift=-np.array([.25,.25,.25]),linewidths=0.5,fontsize
 # constants
 radius = 0.5
 unit = 0.1
-sigma_given = 5 * unit
+sigma_given = 3 * unit
 factor = 1
 
 # sphere
@@ -84,7 +84,7 @@ normal_position = radius * np.copy(normal_position_nomalized)
 normal = unit * np.copy(normal_position_nomalized)
 
 # loop over stress components
-for i in range(1):
+for i in range(6):
     COMPONENT = 1 + i
     # COMPONENT = 1 --> sigma_11
     # COMPONENT = 2 --> sigma_22
