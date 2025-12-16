@@ -12,7 +12,7 @@ Welcome to the gallery of visualizations in computational mechanics. These visua
 
 ## Matplotlib
 
-A straightforward way to create animations is by using the animation functionality of the Python library [Matplotlib](https://matplotlib.org/). Below, we showcase an example. To run it, install Matplotlib and import it in Python.
+A straightforward way to create animations is by using the animation functionality of the Python library [Matplotlib](https://matplotlib.org/). Install Matplotlib and import it in Python.
 
 ```python
 import matplotlib.pyplot as plt
