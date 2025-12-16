@@ -12,9 +12,28 @@ Welcome to the gallery of visualizations in computational mechanics. These visua
 
 ## Matplotlib
 
+A straightforward way to create animations is by using the animation functionality of the Python library [Matplotlib](https://matplotlib.org/). Below, we showcase an example. To run it, install Matplotlib and import it in Python.
+
+```python
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+```
+
+#### Example: Stress Tensor Components
+
+Description: We visualize the individual components of the Cauchy stress tensor in a fixed Cartesian basis by illustrating the outward unit normal vectors (in red) and the traction vectors (in white) acting on an infinitesimal volume element.
+
+Video link: [https://youtu.be/NtTVEzZS3Bg](https://youtu.be/NtTVEzZS3Bg)
+
+```python
+# !!! full code in matplotlib_animate.py !!!
+
+
+```
+
 ## Manim
 
-In the following, we highlight example animations implemented in the [Manim Community Edition](https://github.com/ManimCommunity/manim). To execute the examples, install ManimCE following the [installation instructions](https://github.com/ManimCommunity/manim?tab=readme-ov-file#installation) and import it in Python.
+In the following, we highlight example animations implemented in the [Manim Community Edition](https://github.com/ManimCommunity/manim). To run these examples, install ManimCE by following the [installation instructions](https://github.com/ManimCommunity/manim?tab=readme-ov-file#installation) and import it in Python.
 
 ```python
 from manim import *
