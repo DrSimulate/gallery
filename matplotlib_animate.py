@@ -44,7 +44,6 @@ def plot_coo(ax,scale=.25,shift=-np.array([.25,.25,.25]),linewidths=0.5,fontsize
 radius = 0.5
 unit = 0.1
 sigma_given = 3 * unit
-factor = 1
 
 # sphere
 u, v = np.mgrid[0:2 * np.pi:30j, 0:np.pi:20j]
@@ -108,7 +107,6 @@ for i in range(6):
     if COMPONENT == 6:
         sigma[1,2] = sigma_given
         sigma[2,1] = sigma_given
-        
     traction = np.matmul(sigma,normal_position_nomalized.T).T
     
     # animate
@@ -124,8 +122,7 @@ for i in range(6):
         plot_coo(ax,shift=np.zeros(3))
         ax.plot_surface(x,y,z,alpha=.2,color=COLOR0)
         plot_vector_field(ax,normal_position,normal,color=COLOR1)
-        if factor > 1e-9:
-            plot_vector_field(ax,normal_position,factor*traction,color=COLOR0)
+        plot_vector_field(ax,normal_position,traction,color=COLOR0)
         
         # set black background
         fig.set_facecolor('black')
@@ -137,23 +134,15 @@ for i in range(6):
         plt.axis('off')
         if frame == 0:
             ax.set_box_aspect((1,1,1))
-        
         if frame == 0: fig.savefig(_path + '_start.png', transparent=True)
         if frame == FRAMES/2: fig.savefig(_path + '_middle.png', transparent=True)
         if frame == FRAMES - 1: fig.savefig(_path + '_end.png', transparent=True)
-        
         return
     
     # frames = maximum number of frames
     # interval = milliseconds (0.001 seconds) between two frames
     # interval = 1/0.03 leads to 30 frames per second
     ani = animation.FuncAnimation(fig,animate,frames=FACTOR_FRAMES*FRAMES,interval=1/0.03)
-    
-    # for transparent background
-    ani.save(_path + '.mov',
-            codec="png",
-            dpi=_dpi,
-            bitrate=-1,
-            savefig_kwargs={"transparent": True, "facecolor": "none"})
+    ani.save(_path + '.mov',codec="png",dpi=_dpi,bitrate=-1,savefig_kwargs={"transparent": True, "facecolor": "none"})
     
 

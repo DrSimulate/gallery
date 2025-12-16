@@ -27,13 +27,30 @@ Video link: [https://youtu.be/NtTVEzZS3Bg](https://youtu.be/NtTVEzZS3Bg)
 
 ```python
 # !!! full code in matplotlib_animate.py !!!
-
-
+# sphere
+u, v = np.mgrid[0:2 * np.pi:30j, 0:np.pi:20j]
+y = radius * np.sin(u) * np.sin(v)
+x = radius * np.cos(u) * np.sin(v)
+z = radius * np.cos(v)
+# loop over stress components
+for i in range(6):
+    COMPONENT = 1 + i
+    traction = np.matmul(sigma,normal_position_nomalized.T).T
+    # animate
+    fig = plt.figure(figsize=(_figsize,_figsize),dpi=_dpi)
+    ax = plt.axes(projection='3d')
+    def animate(frame):
+        ax.cla() # ax.clf() # ax.collections.clear()
+        plot_coo(ax,shift=np.zeros(3))
+        ax.plot_surface(x,y,z,alpha=.2,color=COLOR0)
+        plot_vector_field(ax,normal_position,normal,color=COLOR1)
+        plot_vector_field(ax,normal_position,factor*traction,color=COLOR0)
+        return
+    ani = animation.FuncAnimation(fig,animate,frames=FACTOR_FRAMES*FRAMES,interval=1/0.03)
+    ani.save(_path + '.mov',codec="png",dpi=_dpi,bitrate=-1,savefig_kwargs={"transparent": True, "facecolor": "none"})
 ```
 
-
 ![Stress Tensor Components](/media/videos/gifs/gif_stress_components.gif)
-
 
 ## Manim
 
