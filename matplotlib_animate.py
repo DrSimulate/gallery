@@ -11,12 +11,10 @@ COLOR3 = np.array([0, 0, 255])/255 # blue
 COLOR4 = np.array([255, 255, 0])/255 # yellow
 COLOR5 = np.array([255, 0, 255])/255 # purple
 COLOR6 = np.array([0, 255, 255])/255 # turquise
-
 def plot_vector_field(ax,nodes,vector,linewidths=0.3,color=COLOR0):
     ax.quiver(nodes[:,0], nodes[:,1], nodes[:,2],
               vector[:,0], vector[:,1], vector[:,2],linewidths=linewidths,length=1.0,normalize=False,color=color)
     return ax
-
 def plot_coo(ax,scale=.25,shift=-np.array([.25,.25,.25]),linewidths=0.5,fontsize=5,shifttxt=0.5):
     # plot coordinate system arrows
     if ax.name != "3d":
@@ -118,7 +116,7 @@ for i in range(6):
     fig = plt.figure(figsize=(_figsize,_figsize),dpi=_dpi)
     ax = plt.axes(projection='3d')
     def animate(frame):
-        ax.cla() # ax.clf() # ax.collections.clear()
+        ax.cla()
         plot_coo(ax,shift=np.zeros(3))
         ax.plot_surface(x,y,z,alpha=.2,color=COLOR0)
         plot_vector_field(ax,normal_position,normal,color=COLOR1)

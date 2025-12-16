@@ -34,13 +34,12 @@ x = radius * np.cos(u) * np.sin(v)
 z = radius * np.cos(v)
 # loop over stress components
 for i in range(6):
-    COMPONENT = 1 + i
     traction = np.matmul(sigma,normal_position_nomalized.T).T
     # animate
     fig = plt.figure(figsize=(_figsize,_figsize),dpi=_dpi)
     ax = plt.axes(projection='3d')
     def animate(frame):
-        ax.cla() # ax.clf() # ax.collections.clear()
+        ax.cla()
         plot_coo(ax,shift=np.zeros(3))
         ax.plot_surface(x,y,z,alpha=.2,color=COLOR0)
         plot_vector_field(ax,normal_position,normal,color=COLOR1)
