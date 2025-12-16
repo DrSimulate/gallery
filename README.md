@@ -21,7 +21,7 @@ import matplotlib.animation as animation
 
 #### Example: Stress Tensor Components
 
-Description: We visualize the individual components of the Cauchy stress tensor in a fixed Cartesian basis by illustrating the outward unit normal vectors (in red) and the traction vectors (in white) acting on an infinitesimal volume element.
+Description: We visualize the individual components of the Cauchy stress tensor in a fixed Cartesian basis by illustrating the outward unit normal vectors (in red) and the traction vectors (in white) acting on an infinitesimal volume element. The subroutine `animate(frame)` is called once per frame and generates a plot of an infinitesimal volume element viewed from a different angle. The function `animation.FuncAnimation()` combines the static plots from each frame into a continuous animation.
 
 Video link: [https://youtu.be/NtTVEzZS3Bg](https://youtu.be/NtTVEzZS3Bg)
 
@@ -44,6 +44,7 @@ for i in range(6):
         ax.plot_surface(x,y,z,alpha=.2,color=COLOR0)
         plot_vector_field(ax,normal_position,normal,color=COLOR1)
         plot_vector_field(ax,normal_position,factor*traction,color=COLOR0)
+        ax.view_init(elev=20, azim=-60 + frame/2)
         return
     ani = animation.FuncAnimation(fig,animate,frames=FACTOR_FRAMES*FRAMES,interval=1/0.03)
     ani.save(_path + '.mov',codec="png",dpi=_dpi,bitrate=-1,savefig_kwargs={"transparent": True, "facecolor": "none"})
@@ -61,7 +62,7 @@ from manim import *
 
 #### Example: Kinematics 2D
 
-Description: We define a triangle in the reference configuration. This triangle is then deformed according to the deformation mapping `phi(X,t)` which depends on time through the `ValueTracker`. 
+Description: We visualize large deformation kinematics in two dimensions. We define a triangle in the reference configuration. This triangle is then deformed according to the deformation mapping `phi(X,t)` which depends on time through the `ValueTracker`. 
 
 Video link: [https://youtu.be/dT30kLnQNUE](https://youtu.be/dT30kLnQNUE)
 
@@ -188,6 +189,8 @@ class FiniteElements(MovingCameraScene):
 ![Finite Elements](/media/videos/manim/1080p60/FiniteElements_ManimCE_v0.18.1.gif)
 
 ## Blender
+
+Objects animated using Matplotlib or Manim generally do not support realistic surfaces and textures. Such features can be created using [Blender](https://www.blender.org/). Deformations of the object can be imported from simulation results or hard-coded directly into the mesh.
 
 #### Example: Finite Element Simulation Results in Blender
 
