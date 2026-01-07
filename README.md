@@ -1,5 +1,5 @@
-<p style="color:red; font-weight:bold; text-align:center;">
-  ⚠️ ⚠️ ⚠️ Please allow your browser some time to load the animated GIFs. ⚠️ ⚠️ ⚠️
+<p align="center">
+  ⚠️ ⚠️ ⚠️ <strong>Please allow your browser some time to load the animated GIFs.</strong> ⚠️ ⚠️ ⚠️
 </p>
 
 ![Banner](/media/images/banner.png)
