@@ -94,6 +94,25 @@ class Kinematics2D(MovingCameraScene):
 
 Description: We visualize large deformation kinematics in two dimensions. To visualize the deformation gradient tensor field, we animate the deformation of infinitesimal elements at selected points.
 
+Video link: [https://youtu.be/1GwAEnegaRs](https://youtu.be/1GwAEnegaRs)
+
+```python
+# !!! full code in manim.py !!!
+class Kinematics2D(MovingCameraScene):
+    def construct(self):
+        time = ValueTracker(0.00) # set a scalar parameter that evolves with time
+        reference = get_reference()
+        current = always_redraw(
+            lambda: reference.copy().apply_function(lambda X: my_phi(X,time.get_value()))
+        )
+        # animate
+        self.wait(.25)
+        self.play(time.animate.set_value(1.00), rate_func=linear)
+        self.wait(.5)
+        self.play(time.animate.set_value(0.00), rate_func=linear)
+        self.wait(.25)
+```
+
 ![Kinematics 2D - Deformation Gradient Tensor Field](/media/videos/manim/1080p60/KinematicsDeformationGradient2D_ManimCE_v0.18.1.gif)
 
 #### Example: Tensor Components
