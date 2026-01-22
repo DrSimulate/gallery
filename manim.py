@@ -101,6 +101,118 @@ class Kinematics2D(MovingCameraScene):
         self.play(time.animate.set_value(0.00), rate_func=linear)
         self.wait(.25)
 
+class KinematicsDeformationGradient2D(MovingCameraScene):
+    def construct(self):
+        # constants
+        Tex.set_default(font_size=96)
+        MathTex.set_default(font_size=96)
+        DecimalNumber.set_default(font_size=96)
+        TIMESCALE = 3.0
+
+        # camera settings and background grid
+        self.camera.frame.scale(2)
+        self.camera.background_color = "#0A3D62"
+        GRID = NumberPlane(x_range=[-30,30,1], y_range=[-30,30,1]).set_opacity(0.7)
+        GRID.z_index = -100
+        self.add(GRID)
+
+        def my_phi(X,t):
+            x0 = (1 + 0.75*t)*X[0]
+            x1 = (1 - 0.25*t)*X[1] + 0.35*t*X[0]**2 - 1.5*t
+            x2 = X[2]
+            return (x0,x1,x2)
+        def my_F(X,t):
+            return np.array([
+                [1 + 0.25*t, 0.0, 0.0],
+                [0.35*t*2*X[0], 1 - 0.25*t, 0.0],
+                [0.0, 0.0, 1.0]
+            ])
+        def get_reference():
+            reference = Circle(
+                        color=WHITE,
+                        fill_color=GREY_D,
+                        fill_opacity=1
+                    ).scale(4)
+            return reference
+        def get_points():
+            n_r = 8
+            n_theta = 32
+            r = np.linspace(0, 1, n_r)[1:-1]
+            theta = np.linspace(0, 2 * np.pi, n_theta, endpoint=False)
+            R, T = np.meshgrid(r, theta)
+            X_coord = np.column_stack((R.flatten() * np.cos(T.flatten()),
+                                    R.flatten() * np.sin(T.flatten())))
+            zeros = np.zeros((X_coord.shape[0], 1))
+            X_coord = 4 * np.hstack([X_coord, zeros])
+            return X_coord
+        def CircleGroup(X_coord,time,phi,F):
+            x = VGroup()
+            for i in range(X_coord.shape[0]):
+                x.add(
+                    Circle(
+                        radius=0.1,
+                        color=WHITE,
+                        z_index=20
+                        ).apply_function(lambda X: F(X_coord[i],time) @ X).move_to(phi(X_coord[i],time))
+                    )
+            return x
+
+        time = ValueTracker(0.00)
+        reference = get_reference()
+        current = always_redraw(
+            lambda: reference.copy().apply_function(lambda X: my_phi(X,time.get_value()))
+        )
+        point_coord = get_points()
+        circles = always_redraw(lambda: CircleGroup(point_coord,time.get_value(),my_phi,my_F))
+
+        X1 = point_coord[131]
+        F_text1 = always_redraw(lambda:
+            MathTex(matrix2text(my_F(X1,time.get_value())[:2,:2])
+                            ).move_to(LEFT * 9 + DOWN * 4)
+            )
+        Line1 = always_redraw(lambda: Line(
+                start=(F_text1.get_corner(UR)),
+                end=my_phi(X1,time.get_value()),
+                buff=0.1,
+                z_index=50)
+        )
+
+        X2 = point_coord[5]
+        F_text2 = always_redraw(lambda:
+            MathTex(matrix2text(my_F(X2,time.get_value())[:2,:2])
+                            ).move_to(RIGHT * 10 + DOWN * 3)
+            )
+        Line2 = always_redraw(lambda: Line(
+                start=(F_text2.get_corner(UL)),
+                end=my_phi(X2,time.get_value()),
+                buff=0.1,
+                z_index=50)
+        )
+
+        X3 = point_coord[47]
+        F_text3 = always_redraw(lambda:
+            MathTex(matrix2text(my_F(X3,time.get_value())[:2,:2])
+                            ).move_to(UP * 5)
+            )
+        Line3 = always_redraw(lambda: Line(
+                start=(F_text3.get_bottom()),
+                end=my_phi(X3,time.get_value()),
+                buff=0.1,
+                z_index=50)
+        )
+
+        self.add(current)
+        self.add(circles)
+        self.add(F_text1,F_text2,F_text3)
+        self.add(Line1,Line2,Line3)
+
+        # animate
+        self.wait(.25)
+        self.play(time.animate.set_value(1.00), rate_func=linear)
+        self.wait(.5)
+        self.play(time.animate.set_value(0.00), rate_func=linear)
+        self.wait(.25)
+
 class TensorComponents(MovingCameraScene):
     def construct(self):
         # constants
