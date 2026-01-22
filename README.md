@@ -90,6 +90,12 @@ class Kinematics2D(MovingCameraScene):
 
 ![Kinematics 2D](/media/videos/manim/1080p60/Kinematics2D_ManimCE_v0.18.1.gif)
 
+#### Example: Kinematics 2D - Deformation Gradient Tensor Field
+
+Description: We visualize large deformation kinematics in two dimensions. To visualize the deformation gradient tensor field, we animate the deformation of infinitesimal elements at selected points.
+
+![Kinematics 2D - Deformation Gradient Tensor Field](/media/videos/manim/1080p60/KinematicsDeformationGradient2D_ManimCE_v0.18.1.gif)
+
 #### Example: Tensor Components
 
 Description: We visualize how the deformation gradient tensor transforms a set of unit vectors by illustrating their deformed images. In addition, we demonstrate how the tensor components change under a rotation of the basis. This example highlights that the physical transformation described by the tensor remains unchanged, even though its component representation depends on the chosen basis.
