@@ -243,4 +243,4 @@ All presented animations were created using [Matplotlib](https://matplotlib.org/
 
 2. Flaschel, Moritz. *Educational video resources on computational mechanics*. YouTube, 2024. URL: [https://www.youtube.com/@DrSimulate](https://www.youtube.com/@DrSimulate)
 
-3. Flaschel, Moritz. *Software for visualizing computational mechanics*. GitHub, 2026. URL: [https://github.com/DrSimulate](https://github.com/DrSimulate)
+<!-- 3. Flaschel, Moritz. *Software for visualizing computational mechanics*. GitHub, 2026. URL: [https://github.com/DrSimulate](https://github.com/DrSimulate) -->
