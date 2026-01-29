@@ -264,7 +264,7 @@ All presented animations were created using [Matplotlib](https://matplotlib.org/
 
 ## References
 
-1. Flaschel, Moritz. *How to visualize computational mechanics: Animating finite elements, continuum mechanics, and tensor calculus*.
+1. Flaschel, Moritz. *How to visualize computational mechanics: Animating finite elements, continuum mechanics, and tensor calculus*. (in preparation)
 
 <!-- 1. Flaschel, Moritz. *How to visualize computational mechanics: Animating finite elements, continuum mechanics, and tensor calculus*. preprint, 2026. DOI: []() -->
 
