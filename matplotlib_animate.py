@@ -3,6 +3,9 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
+# specify whether the infinitesimal element is a cube or a sphere
+ELEMENT_SHAPE = "cube"  # options: "cube", "sphere"
+
 # helper functions
 COLOR0 = np.array([255, 255, 255])/255 # white
 COLOR1 = np.array([255, 0, 0])/255 # red
@@ -38,109 +41,231 @@ def plot_coo(ax,scale=.25,shift=-np.array([.25,.25,.25]),linewidths=0.5,fontsize
         ax.text(e3txt[0],e3txt[1],e3txt[2],r'$x_3$',size=fontsize,color=COLOR0,horizontalalignment='center',verticalalignment='center')
     return ax
 
-# constants
-radius = 0.5
-unit = 0.1
-sigma_given = 3 * unit
+if ELEMENT_SHAPE == "cube":
 
-# sphere
-u, v = np.mgrid[0:2 * np.pi:30j, 0:np.pi:20j]
-y = radius * np.sin(u) * np.sin(v)
-x = radius * np.cos(u) * np.sin(v)
-z = radius * np.cos(v)
-normal_position_nomalized = np.array([
-    [1,0,0],
-    [0,1,0],
-    [0,0,1],
-    [-1,0,0],
-    [0,-1,0],
-    [0,0,-1],
-    [1,1,0],
-    [0,1,1],
-    [1,0,1],
-    [-1,-1,0],
-    [0,-1,-1],
-    [-1,0,-1],
-    [1,-1,0],
-    [0,1,-1],
-    [1,0,-1],
-    [-1,1,0],
-    [0,-1,1],
-    [-1,0,1],
-    [1,1,1],
-    [-1,1,1],
-    [1,-1,1],
-    [1,1,-1],
-    [1,-1,-1],
-    [-1,1,-1],
-    [-1,-1,1],
-    [-1,-1,-1],
-    ])
-normal_position_nomalized = normal_position_nomalized / np.repeat(np.array([np.sum(np.abs(normal_position_nomalized)**2,axis=-1)**(1./2)]).T,3,axis=1)
-normal_position = radius * np.copy(normal_position_nomalized)
-normal = unit * np.copy(normal_position_nomalized)
+    # constants
+    length = 1.0
+    unit = 0.1
+    sigma_given = 3 * unit
 
-# loop over stress components
-for i in range(6):
-    COMPONENT = 1 + i
-    # COMPONENT = 1 --> sigma_11
-    # COMPONENT = 2 --> sigma_22
-    # COMPONENT = 3 --> sigma_33
-    # COMPONENT = 4 --> sigma_12 & sigma_21
-    # COMPONENT = 5 --> sigma_13 & sigma_31
-    # COMPONENT = 6 --> sigma_23 & sigma_32
-    sigma = np.zeros([3,3])
-    if COMPONENT == 1:
-        sigma[0,0] = sigma_given
-    if COMPONENT == 2:
-        sigma[1,1] = sigma_given
-    if COMPONENT == 3:
-        sigma[2,2] = sigma_given        
-    if COMPONENT == 4:
-        sigma[0,1] = sigma_given
-        sigma[1,0] = sigma_given
-    if COMPONENT == 5:
-        sigma[0,2] = sigma_given
-        sigma[2,0] = sigma_given
-    if COMPONENT == 6:
-        sigma[1,2] = sigma_given
-        sigma[2,1] = sigma_given
-    traction = np.matmul(sigma,normal_position_nomalized.T).T
-    
-    # animate
-    _dpi = 600
-    _figsize = 2
-    _path = 'media/videos/matplotlib_animate/stress_element_sphere_component_' + str(int(COMPONENT)) + "_animation"
-    FACTOR_FRAMES = 12
-    FRAMES = 60
-    fig = plt.figure(figsize=(_figsize,_figsize),dpi=_dpi)
-    ax = plt.axes(projection='3d')
-    def animate(frame):
-        ax.cla()
-        plot_coo(ax,shift=np.zeros(3))
-        ax.plot_surface(x,y,z,alpha=.2,color=COLOR0)
-        plot_vector_field(ax,normal_position,normal,color=COLOR1)
-        plot_vector_field(ax,normal_position,traction,color=COLOR0)
+    # Create grid
+    r = np.linspace(-length/2, length/2, 3)
+    x, y = np.meshgrid(r, r)
+    z = np.zeros_like(x)
+
+    nodes_1_minus = np.stack([-length/2.0*np.ones_like(x), x, y], axis=-1).reshape(-1, 3)
+    nodes_1_plus = np.stack([length/2.0*np.ones_like(x), x, y], axis=-1).reshape(-1, 3)
+    nodes_2_minus = np.stack([x, -length/2.0*np.ones_like(x), y], axis=-1).reshape(-1, 3)
+    nodes_2_plus = np.stack([x, length/2.0*np.ones_like(x), y], axis=-1).reshape(-1, 3)
+    nodes_3_minus = np.stack([x, y, -length/2.0*np.ones_like(x)], axis=-1).reshape(-1, 3)
+    nodes_3_plus = np.stack([x, y, length/2.0*np.ones_like(x)], axis=-1).reshape(-1, 3)
+   
+    normals_1_minus = np.tile([-1.0, 0.0, 0.0], (nodes_1_minus.shape[0], 1))
+    normals_1_plus = np.tile([1.0, 0.0, 0.0], (nodes_1_plus.shape[0], 1))
+    normals_2_minus = np.tile([0.0, -1.0, 0.0], (nodes_2_minus.shape[0], 1))
+    normals_2_plus = np.tile([0.0, 1.0, 0.0], (nodes_2_plus.shape[0], 1))
+    normals_3_minus = np.tile([0.0, 0.0, -1.0], (nodes_3_minus.shape[0], 1))
+    normals_3_plus = np.tile([0.0, 0.0, 1.0], (nodes_3_plus.shape[0], 1))
+
+    # loop over stress components
+    for i in range(6):
+        COMPONENT = 1 + i
+        # COMPONENT = 1 --> sigma_11
+        # COMPONENT = 2 --> sigma_22
+        # COMPONENT = 3 --> sigma_33
+        # COMPONENT = 4 --> sigma_12 & sigma_21
+        # COMPONENT = 5 --> sigma_13 & sigma_31
+        # COMPONENT = 6 --> sigma_23 & sigma_32
+        sigma = np.zeros([3,3])
+
+        # animate
+        _dpi = 600
+        _figsize = 2
+        _path = 'media/videos/matplotlib_animate/stress_element_cube_component_' + str(int(COMPONENT)) + "_animation"
+        FACTOR_FRAMES = 12
+        FRAMES = 60
+        fig = plt.figure(figsize=(_figsize,_figsize),dpi=_dpi)
+        ax = plt.axes(projection='3d')
+        def animate(frame):
+            ax.cla()
+            plot_coo(ax,shift=np.zeros(3))
+            # plot cube faces
+            ax.plot_surface(x,y,-length/2.0*np.ones_like(x),alpha=.2,color=COLOR0)
+            ax.plot_surface(x,y,length/2.0*np.ones_like(x),alpha=.2,color=COLOR0)
+            ax.plot_surface(x,-length/2.0*np.ones_like(x),y,alpha=.2,color=COLOR0)
+            ax.plot_surface(x,length/2.0*np.ones_like(x),y,alpha=.2,color=COLOR0)
+            ax.plot_surface(-length/2.0*np.ones_like(x),x,y,alpha=.2,color=COLOR0)
+            ax.plot_surface(length/2.0*np.ones_like(x),x,y,alpha=.2,color=COLOR0)
+
+            if COMPONENT == 1:
+                sigma[0,0] = sigma_given
+                traction = np.matmul(sigma,normals_1_plus.T).T
+                plot_vector_field(ax,nodes_1_minus,-traction,color=COLOR0)
+                plot_vector_field(ax,nodes_1_plus,traction,color=COLOR0)
+            if COMPONENT == 2:
+                sigma[1,1] = sigma_given
+                traction = np.matmul(sigma,normals_2_plus.T).T
+                plot_vector_field(ax,nodes_2_minus,-traction,color=COLOR0)
+                plot_vector_field(ax,nodes_2_plus,traction,color=COLOR0)
+            if COMPONENT == 3:
+                sigma[2,2] = sigma_given
+                traction = np.matmul(sigma,normals_3_plus.T).T
+                plot_vector_field(ax,nodes_3_minus,-traction,color=COLOR0)
+                plot_vector_field(ax,nodes_3_plus,traction,color=COLOR0)
+            if COMPONENT == 4:
+                sigma[0,1] = sigma_given
+                sigma[1,0] = sigma_given
+                traction1 = np.matmul(sigma,normals_1_plus.T).T
+                traction2 = np.matmul(sigma,normals_2_plus.T).T
+                plot_vector_field(ax,nodes_1_minus,-traction1,color=COLOR0)
+                plot_vector_field(ax,nodes_1_plus,traction1,color=COLOR0)
+                plot_vector_field(ax,nodes_2_minus,-traction2,color=COLOR0)
+                plot_vector_field(ax,nodes_2_plus,traction2,color=COLOR0)
+            if COMPONENT == 5:
+                sigma[0,2] = sigma_given
+                sigma[2,0] = sigma_given
+                traction1 = np.matmul(sigma,normals_1_plus.T).T
+                traction3 = np.matmul(sigma,normals_3_plus.T).T
+                plot_vector_field(ax,nodes_1_minus,-traction1,color=COLOR0)
+                plot_vector_field(ax,nodes_1_plus,traction1,color=COLOR0)
+                plot_vector_field(ax,nodes_3_minus,-traction3,color=COLOR0)
+                plot_vector_field(ax,nodes_3_plus,traction3,color=COLOR0)
+            if COMPONENT == 6:
+                sigma[1,2] = sigma_given
+                sigma[2,1] = sigma_given
+                traction2 = np.matmul(sigma,normals_2_plus.T).T
+                traction3 = np.matmul(sigma,normals_3_plus.T).T
+                plot_vector_field(ax,nodes_2_minus,-traction2,color=COLOR0)
+                plot_vector_field(ax,nodes_2_plus,traction2,color=COLOR0)
+                plot_vector_field(ax,nodes_3_minus,-traction3,color=COLOR0)
+                plot_vector_field(ax,nodes_3_plus,traction3,color=COLOR0)
+
+            # plot_vector_field(ax,normal_position,normal,color=COLOR1)
+            # plot_vector_field(ax,normal_position,traction,color=COLOR0)
+            
+            # set black background
+            fig.set_facecolor('black')
+            ax.set_facecolor('black')
+            ax.view_init(elev=20, azim=-60 + frame/2)
+            ax.set_xlim(-.75, .75)
+            ax.set_ylim(-.75, .75)
+            ax.set_zlim(-.75, .75)
+            plt.axis('off')
+            if frame == 0:
+                ax.set_box_aspect((1,1,1))
+            if frame == 0: fig.savefig(_path + '_start.png', transparent=True)
+            if frame == FRAMES - 1: fig.savefig(_path + '_end.png', transparent=True)
+            return
         
-        # set black background
-        fig.set_facecolor('black')
-        ax.set_facecolor('black')
-        ax.view_init(elev=20, azim=-60 + frame/2)
-        ax.set_xlim(-.75, .75)
-        ax.set_ylim(-.75, .75)
-        ax.set_zlim(-.75, .75)
-        plt.axis('off')
-        if frame == 0:
-            ax.set_box_aspect((1,1,1))
-        if frame == 0: fig.savefig(_path + '_start.png', transparent=True)
-        if frame == FRAMES/2: fig.savefig(_path + '_middle.png', transparent=True)
-        if frame == FRAMES - 1: fig.savefig(_path + '_end.png', transparent=True)
-        return
+        # frames = maximum number of frames
+        # interval = milliseconds (0.001 seconds) between two frames
+        # interval = 1/0.03 leads to 30 frames per second
+        ani = animation.FuncAnimation(fig,animate,frames=FACTOR_FRAMES*FRAMES,interval=1/0.03)
+        ani.save(_path + '.mov',codec="png",dpi=_dpi,bitrate=-1,savefig_kwargs={"transparent": True, "facecolor": "none"})
     
-    # frames = maximum number of frames
-    # interval = milliseconds (0.001 seconds) between two frames
-    # interval = 1/0.03 leads to 30 frames per second
-    ani = animation.FuncAnimation(fig,animate,frames=FACTOR_FRAMES*FRAMES,interval=1/0.03)
-    ani.save(_path + '.mov',codec="png",dpi=_dpi,bitrate=-1,savefig_kwargs={"transparent": True, "facecolor": "none"})
+elif ELEMENT_SHAPE == "sphere":
+    # constants
+    radius = 0.5
+    unit = 0.1
+    sigma_given = 3 * unit
+
+    # sphere
+    u, v = np.mgrid[0:2 * np.pi:30j, 0:np.pi:20j]
+    y = radius * np.sin(u) * np.sin(v)
+    x = radius * np.cos(u) * np.sin(v)
+    z = radius * np.cos(v)
+    normal_position_nomalized = np.array([
+        [1,0,0],
+        [0,1,0],
+        [0,0,1],
+        [-1,0,0],
+        [0,-1,0],
+        [0,0,-1],
+        [1,1,0],
+        [0,1,1],
+        [1,0,1],
+        [-1,-1,0],
+        [0,-1,-1],
+        [-1,0,-1],
+        [1,-1,0],
+        [0,1,-1],
+        [1,0,-1],
+        [-1,1,0],
+        [0,-1,1],
+        [-1,0,1],
+        [1,1,1],
+        [-1,1,1],
+        [1,-1,1],
+        [1,1,-1],
+        [1,-1,-1],
+        [-1,1,-1],
+        [-1,-1,1],
+        [-1,-1,-1],
+        ])
+    normal_position_nomalized = normal_position_nomalized / np.repeat(np.array([np.sum(np.abs(normal_position_nomalized)**2,axis=-1)**(1./2)]).T,3,axis=1)
+    normal_position = radius * np.copy(normal_position_nomalized)
+    normal = unit * np.copy(normal_position_nomalized)
+
+    # loop over stress components
+    for i in range(6):
+        COMPONENT = 1 + i
+        # COMPONENT = 1 --> sigma_11
+        # COMPONENT = 2 --> sigma_22
+        # COMPONENT = 3 --> sigma_33
+        # COMPONENT = 4 --> sigma_12 & sigma_21
+        # COMPONENT = 5 --> sigma_13 & sigma_31
+        # COMPONENT = 6 --> sigma_23 & sigma_32
+        sigma = np.zeros([3,3])
+        if COMPONENT == 1:
+            sigma[0,0] = sigma_given
+        if COMPONENT == 2:
+            sigma[1,1] = sigma_given
+        if COMPONENT == 3:
+            sigma[2,2] = sigma_given        
+        if COMPONENT == 4:
+            sigma[0,1] = sigma_given
+            sigma[1,0] = sigma_given
+        if COMPONENT == 5:
+            sigma[0,2] = sigma_given
+            sigma[2,0] = sigma_given
+        if COMPONENT == 6:
+            sigma[1,2] = sigma_given
+            sigma[2,1] = sigma_given
+        traction = np.matmul(sigma,normal_position_nomalized.T).T
+        
+        # animate
+        _dpi = 600
+        _figsize = 2
+        _path = 'media/videos/matplotlib_animate/stress_element_sphere_component_' + str(int(COMPONENT)) + "_animation"
+        FACTOR_FRAMES = 12
+        FRAMES = 60
+        fig = plt.figure(figsize=(_figsize,_figsize),dpi=_dpi)
+        ax = plt.axes(projection='3d')
+        def animate(frame):
+            ax.cla()
+            plot_coo(ax,shift=np.zeros(3))
+            ax.plot_surface(x,y,z,alpha=.2,color=COLOR0)
+            plot_vector_field(ax,normal_position,normal,color=COLOR1)
+            plot_vector_field(ax,normal_position,traction,color=COLOR0)
+            
+            # set black background
+            fig.set_facecolor('black')
+            ax.set_facecolor('black')
+            ax.view_init(elev=20, azim=-60 + frame/2)
+            ax.set_xlim(-.75, .75)
+            ax.set_ylim(-.75, .75)
+            ax.set_zlim(-.75, .75)
+            plt.axis('off')
+            if frame == 0:
+                ax.set_box_aspect((1,1,1))
+            if frame == 0: fig.savefig(_path + '_start.png', transparent=True)
+            if frame == FRAMES - 1: fig.savefig(_path + '_end.png', transparent=True)
+            return
+        
+        # frames = maximum number of frames
+        # interval = milliseconds (0.001 seconds) between two frames
+        # interval = 1/0.03 leads to 30 frames per second
+        ani = animation.FuncAnimation(fig,animate,frames=FACTOR_FRAMES*FRAMES,interval=1/0.03)
+        ani.save(_path + '.mov',codec="png",dpi=_dpi,bitrate=-1,savefig_kwargs={"transparent": True, "facecolor": "none"})
     
 

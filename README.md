@@ -17,9 +17,9 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 ```
 
-#### Example: Stress Tensor Components
+#### Example: Stress Tensor Components on Infinitesimal Sphere
 
-Description: We visualize the individual components of the Cauchy stress tensor in a fixed Cartesian basis by illustrating the outward unit normal vectors (in red) and the traction vectors (in white) acting on an infinitesimal volume element. The subroutine `animate(frame)` is called once per frame and generates a plot of an infinitesimal volume element viewed from a different angle. The function `animation.FuncAnimation()` combines the static plots from each frame into a continuous animation.
+Description: We visualize the individual components of the Cauchy stress tensor in a fixed Cartesian basis by illustrating the outward unit normal vectors (in red) and the traction vectors (in white) acting on a spherical infinitesimal volume element. The subroutine `animate(frame)` is called once per frame and generates a plot of an infinitesimal volume element viewed from a different angle. The function `animation.FuncAnimation()` combines the static plots from each frame into a continuous animation.
 
 Video link: [https://youtu.be/NtTVEzZS3Bg](https://youtu.be/NtTVEzZS3Bg)
 
@@ -48,7 +48,15 @@ for i in range(6):
     ani.save(_path + '.mov',codec="png",dpi=_dpi,bitrate=-1,savefig_kwargs={"transparent": True, "facecolor": "none"})
 ```
 
-![Stress Tensor Components](/media/videos/gifs/gif_stress_components.gif)
+![Stress Tensor Components](/media/videos/gifs/gif_stress_components_sphere.gif)
+
+#### Example: Stress Tensor Components on Infinitesimal Cube
+
+Description: Similar to the previous example, we visualize the individual components of the Cauchy stress tensor in a fixed Cartesian basis by illustrating the traction vectors acting on a cubic infinitesimal volume element.
+
+Video link: [https://youtu.be/NtTVEzZS3Bg](https://youtu.be/NtTVEzZS3Bg)
+
+![Stress Tensor Components](/media/videos/gifs/gif_stress_components_cube.gif)
 
 ## Manim
 
