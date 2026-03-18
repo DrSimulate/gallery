@@ -219,6 +219,12 @@ class FiniteElements(MovingCameraScene):
 
 ![Finite Elements](/media/videos/manim/1080p60/FiniteElements_ManimCE_v0.18.1.gif)
 
+#### Example: Finite Element Method - Mesh Refinement
+
+Description: Mesh refinement is visualized by sucessively increasing the number of finite elements.
+
+![Finite Elements](/media/videos/manim/480p15/FiniteElementsMeshRefinement_ManimCE_v0.18.1.gif)
+
 ## Blender
 
 Objects animated using Matplotlib or Manim generally do not support realistic surfaces and textures. Such features can be created using [Blender](https://www.blender.org/). Deformations of the object can be imported from simulation results or hard-coded directly into the mesh.

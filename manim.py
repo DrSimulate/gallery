@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
+from matplotlib.transforms import Transform
 import numpy as np
 np.random.seed(0)
 from manim import *
@@ -385,6 +386,92 @@ class FiniteElements(MovingCameraScene):
                   variable6.tracker.animate.set_value(0))
         self.wait(0.125)
 
+class FiniteElementsMeshRefinement(MovingCameraScene):
+    def construct(self):
+        # constants
+        Tex.set_default(font_size=32)
+        MathTex.set_default(font_size=32)
+        DecimalNumber.set_default(font_size=32)
+
+        # camera settings and background grid
+        self.camera.frame.scale(0.5)
+        self.camera.background_color = "#0A3D62"
+
+        # differential equation
+        # u''(x) = f, u(0) = 0, u(L) = 0
+        f = -4
+        L = 1
+
+        ax_u = Axes(
+            x_range=[0, 1.05, 0.1],
+            y_range=[-0.5, 0.5, 1],
+            x_length=5.5,
+            y_length=1.75,
+            axis_config={"include_tip": False},
+        )
+
+        labels_u = VGroup(
+            MathTex(r"x").next_to(ax_u.coords_to_point(1.05, 0),RIGHT),
+            MathTex(r"u(x)").next_to(ax_u.coords_to_point(0, 0.5),UP,buff=0).shift(UP * 0.1),
+            )
+
+                
+        coord_u = VGroup(ax_u, labels_u)
+
+        graph_u_analytical = ax_u.plot(lambda x : 0.5*f*x**2 - 0.5*f*L*x, x_range=[0,1], use_smoothing=False, color=WHITE)
+        
+        
+        v_lines_2 = get_v_lines(ax_u,[1/2,1])
+        v_lines_3 = get_v_lines(ax_u,[1/3,2/3,1])
+        v_lines_4 = get_v_lines(ax_u,[0.25,0.5,0.75,1])
+        v_lines_5 = get_v_lines(ax_u,[0.2,0.4,0.6,0.8,1])
+
+        func_uN2 = get_func_uN2()
+        func_uN3 = get_func_uN3()
+        func_uN4 = get_func_uN4()
+        _, _, _, _, _, _, func_uN5, _, _ = get_func_uN()
+
+        def pad_with_zeros(v, target_size):
+            out = np.zeros(target_size, dtype=v.dtype)
+            n = min(len(v), target_size)
+            out[:n] = v[:n]
+            return out
+
+        _, u2 = fem_1d_poisson(2, L=L, f=f)
+        graph_uN2 = ax_u.plot(lambda x : func_uN2(x,u2), x_range=[0,1], use_smoothing=False, color=YELLOW)
+        _, u3 = fem_1d_poisson(3, L=L, f=f)
+        graph_uN3 = ax_u.plot(lambda x : func_uN3(x,u3), x_range=[0,1], use_smoothing=False, color=YELLOW)
+        _, u4 = fem_1d_poisson(4, L=L, f=f)
+        graph_uN4 = ax_u.plot(lambda x : func_uN4(x,u4), x_range=[0,1], use_smoothing=False, color=YELLOW)
+        _, u5 = fem_1d_poisson(5, L=L, f=f)
+        graph_uN5 = ax_u.plot(lambda x : func_uN5(x,u5), x_range=[0,1], use_smoothing=False, color=YELLOW)
+        
+        self.add(
+            coord_u,
+            graph_u_analytical,
+            v_lines_2,
+            graph_uN2,
+            )
+        
+        # animate
+        self.wait(0.25)
+        self.play(
+            FadeOut(v_lines_2, graph_uN2),
+            FadeIn(v_lines_3, graph_uN3),
+            )
+        self.wait(0.5)
+        self.play(
+            FadeOut(v_lines_3, graph_uN3),
+            FadeIn(v_lines_4, graph_uN4),
+            )
+        self.wait(0.5)
+        self.play(
+            FadeOut(v_lines_4, graph_uN4),
+            FadeIn(v_lines_5, graph_uN5),
+            )
+        self.wait(0.25)
+        
+
 # helper functions
 def lighten_color(color, factor=2.):
     if factor <= 1:
@@ -566,6 +653,119 @@ def get_func_uN():
     
     return func_N1, func_N2, func_N3, func_N4, func_N5, func_N6, func_uN, func_uNd, func_uNdd
 
+def get_func_uN2():
+    def func_N1(x, factor=1):
+        if 0 <= x <= 1/2:
+            return (1-2*x) * factor
+        else:
+            return 0
+    
+    def func_N2(x, factor=1):
+        if 0 <= x <= 1/2:
+            return (2*x) * factor
+        elif 1/2 <= x <= 1:
+            return (1-2*(x-1/2)) * factor
+        else:
+            return 0
+    
+    def func_N3(x, factor=1):
+        if 1/2 <= x <= 1:
+            return (2*(x-1/2)) * factor
+        else:
+            return 0
+    
+    def func_uN(x, u_values=np.zeros(6)):
+        u = func_N1(x, u_values[0])
+        u += func_N2(x, u_values[1])
+        u += func_N3(x, u_values[2])
+        return u
+    
+    return func_uN
+
+def get_func_uN3():
+    def func_N1(x, factor=1):
+        if 0 <= x <= 1/3:
+            return (1-3*x) * factor
+        else:
+            return 0
+    
+    def func_N2(x, factor=1):
+        if 0 <= x <= 1/3:
+            return (3*x) * factor
+        elif 1/3 <= x <= 2/3:
+            return (1-3*(x-1/3)) * factor
+        else:
+            return 0
+    
+    def func_N3(x, factor=1):
+        if 1/3 <= x <= 2/3:
+            return (3*(x-1/3)) * factor
+        elif 2/3 <= x <= 1:
+            return (1-3*(x-2/3)) * factor
+        else:
+            return 0
+    
+    def func_N4(x, factor=1):
+        if 2/3 <= x <= 1:
+            return (3*(x-2/3)) * factor
+        return 0
+    
+    def func_uN(x, u_values=np.zeros(6)):
+        u = func_N1(x, u_values[0])
+        u += func_N2(x, u_values[1])
+        u += func_N3(x, u_values[2])
+        u += func_N4(x, u_values[3])
+        return u
+    
+    return func_uN
+
+def get_func_uN4():
+    def func_N1(x, factor=1):
+        if 0 <= x <= 0.25:
+            return (1-4*x) * factor
+        else:
+            return 0
+    
+    def func_N2(x, factor=1):
+        if 0 <= x <= 0.25:
+            return (4*x) * factor
+        elif 0.25 <= x <= 0.5:
+            return (1-4*(x-0.25)) * factor
+        else:
+            return 0
+    
+    def func_N3(x, factor=1):
+        if 0.25 <= x <= 0.5:
+            return (4*(x-0.25)) * factor
+        elif 0.5 <= x <= 0.75:
+            return (1-4*(x-0.5)) * factor
+        else:
+            return 0
+    
+    def func_N4(x, factor=1):
+        if 0.5 <= x <= 0.75:
+            return (4*(x-0.5)) * factor
+        elif 0.75 <= x <= 1.0:
+            return (1-4*(x-0.75)) * factor
+        else:
+            return 0
+    
+    def func_N5(x, factor=1):
+        if 0.75 <= x <= 1.0:
+            return (4*(x-0.75)) * factor
+        else:
+            return 0
+    
+    def func_uN(x, u_values=np.zeros(6)):
+        u = func_N1(x, u_values[0])
+        u += func_N2(x, u_values[1])
+        u += func_N3(x, u_values[2])
+        u += func_N4(x, u_values[3])
+        u += func_N5(x, u_values[4])
+        return u
+        
+    return func_uN
+
 def get_v_lines(ax,x):
     y_min, y_max, _ = ax.y_range
     v_lines = VGroup()
@@ -575,3 +775,57 @@ def get_v_lines(ax,x):
         if y_max > 0:
             v_lines += ax.get_vertical_line(ax.c2p(i, y_max, 0))
     return v_lines
+
+def fem_1d_poisson(n_elements, L=1.0, f=1.0):
+    """
+    Solve u'' = f on [0, L] with u(0)=u(L)=0 using linear FEM.
+
+    Parameters
+    ----------
+    n_elements : int
+        Number of finite elements
+    L : float
+        Length of the domain
+    f : float
+        Constant right-hand side
+
+    Returns
+    -------
+    x : ndarray
+        Node coordinates
+    u : ndarray
+        FEM solution at nodes
+    """
+    n_nodes = n_elements + 1
+    x = np.linspace(0, L, n_nodes)
+    h = L / n_elements
+
+    # Initialize global stiffness matrix and load vector
+    K = np.zeros((n_nodes, n_nodes))
+    F = np.zeros(n_nodes)
+
+    # Element stiffness matrix and load vector (linear elements)
+    Ke = (1.0 / h) * np.array([[1, -1],
+                               [-1, 1]])
+    Fe = (-f * h / 2.0) * np.array([1, 1])
+
+    # Assembly
+    for e in range(n_elements):
+        nodes = [e, e + 1]
+        for i in range(2):
+            F[nodes[i]] += Fe[i]
+            for j in range(2):
+                K[nodes[i], nodes[j]] += Ke[i, j]
+
+    # Apply Dirichlet BCs: u(0)=0, u(L)=0
+    K = K[1:-1, 1:-1]
+    F = F[1:-1]
+
+    # Solve system
+    u_inner = np.linalg.solve(K, F)
+
+    # Reconstruct full solution including boundaries
+    u = np.zeros(n_nodes)
+    u[1:-1] = u_inner
+
+    return x, u
