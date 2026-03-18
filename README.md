@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 ```
 
-#### Example: Stress Tensor Components on Infinitesimal Sphere
+#### Example: Stress Tensor Components - Infinitesimal Sphere
 
 Description: We visualize the individual components of the Cauchy stress tensor in a fixed Cartesian basis by illustrating the outward unit normal vectors (in red) and the traction vectors (in white) acting on a spherical infinitesimal volume element. The subroutine `animate(frame)` is called once per frame and generates a plot of an infinitesimal volume element viewed from a different angle. The function `animation.FuncAnimation()` combines the static plots from each frame into a continuous animation.
 
@@ -50,7 +50,7 @@ for i in range(6):
 
 ![Stress Tensor Components](/media/videos/gifs/gif_stress_components_sphere.gif)
 
-#### Example: Stress Tensor Components on Infinitesimal Cube
+#### Example: Stress Tensor Components - Infinitesimal Cube
 
 Description: Similar to the previous example, we visualize the individual components of the Cauchy stress tensor in a fixed Cartesian basis by illustrating the traction vectors acting on a cubic infinitesimal volume element.
 
