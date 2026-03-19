@@ -214,6 +214,439 @@ class KinematicsDeformationGradient2D(MovingCameraScene):
         self.play(time.animate.set_value(0.00), rate_func=linear)
         self.wait(.25)
 
+SHINY_RED = '#ff3232'
+SHINY_GREEN = '#00FF00'
+SHINY_YELLOW = '#FFFF00'
+NEON1 = '#00aaff' # blue
+NEON2 = '#aa00ff' # purple
+NEON3 = '#ff00aa' # pink
+NEON4 = '#ffaa00' # orange
+NEON5 = '#aaff00' # green
+NEON6 = '#00ffaa'  # cyan / teal
+COLOR_NORMAL = SHINY_RED
+COLOR_TRACTION = WHITE
+COLOR_FORCE = SHINY_YELLOW
+COLOR_AREA = NEON6
+COLOR_AREAVEC = NEON3
+def lighten_hex(hex_color, amount=0.5):
+    """
+    Lightens the given color by moving it `amount` toward white.
+    amount = 0.5  →  50% lighter
+    """
+    hex_color = hex_color.lstrip('#')
+
+    r = int(hex_color[0:2], 16)
+    g = int(hex_color[2:4], 16)
+    b = int(hex_color[4:6], 16)
+
+    # move each channel toward white (255)
+    r = int(r + (255 - r) * amount)
+    g = int(g + (255 - g) * amount)
+    b = int(b + (255 - b) * amount)
+
+    return '#{:02x}{:02x}{:02x}'.format(r, g, b)
+
+R = 1.5 # radius of sphere
+MY_lam = 1.5
+MY_F = np.array([
+            [np.sqrt(1/MY_lam), 0.0, 0.3],
+            [0.0, np.sqrt(1/MY_lam), 0.0],
+            [0.0, 0.2, MY_lam],
+        ])
+MY_FinvT = np.linalg.inv(MY_F).T
+def neo_hooke(F, p=1, mu=1):
+    C = F.T @ F
+    b = F @ F.T
+    I = np.eye(3)
+    sigma = mu*b - p*I
+    P = mu*F - p*np.linalg.inv(F).T
+    S = mu*I - p*np.linalg.inv(C)
+    return sigma, P, S
+MY_sigma, MY_P, MY_S = neo_hooke(MY_F)
+
+def normalize(v):
+    return v / np.linalg.norm(v)
+def n_from_N(N):
+    return normalize(MY_FinvT @ N)
+def N_from_n(n):
+    return normalize(MY_F.T @ n)
+def rotate_vectors_to_normal(vectors, n_target):
+    n0 = np.array([0.0, 0.0, 1.0])
+    n = n_target / np.linalg.norm(n_target)
+    k = np.cross(n0, n)
+    k_norm = np.linalg.norm(k)
+    if k_norm < 1e-8:
+        return vectors.copy()
+    k /= k_norm
+    theta = np.arccos(np.clip(np.dot(n0, n), -1.0, 1.0))
+    K = np.array([[0, -k[2], k[1]],
+                  [k[2], 0, -k[0]],
+                  [-k[1], k[0], 0]])
+    R = np.eye(3) + np.sin(theta)*K + (1 - np.cos(theta))*(K @ K)
+    return R @ vectors
+
+n_vectors = 7
+MY_position_multiple2 = np.zeros((3,n_vectors+1))
+for i in range(n_vectors):
+    theta = 2 * np.pi * i / n_vectors
+    x = np.cos(theta)
+    y = np.sin(theta)
+    z = 0.0
+    MY_position_multiple2[:, i] = [0.75*R*x, 0.75*R*y, z]
+MY_position_multiple2[:, i+1] = [z, z, z]
+
+def get_coordinates_3D(scene):
+    arrow1 = Arrow3D(start=ORIGIN, end=RIGHT)
+    arrow2 = Arrow3D(start=ORIGIN, end=UP)
+    arrow3 = Arrow3D(start=ORIGIN, end=OUT)
+    label1 = MathTex(r"\boldsymbol{e}_1").next_to(arrow1, RIGHT, buff=0.1).rotate(PI/2, axis=RIGHT)
+    label2 = MathTex(r"\boldsymbol{e}_2").next_to(arrow2, UP, buff=0.2).rotate(PI/2, axis=RIGHT)
+    label3 = MathTex(r"\boldsymbol{e}_3").next_to(arrow3, OUT, buff=0.1).rotate(PI/2, axis=RIGHT)
+    return VGroup(arrow1,arrow2,arrow3,label1,label2,label3)
+
+def get_area_element(
+        R=1.5,
+        checkerboard=True,
+        color=NEON6,
+        resolution=(4, 32)
+        ):
+        stroke_width = 1.5
+        
+        if checkerboard:
+            colors = [color, lighten_hex(color)]
+        else:
+            colors = [color, color]
+
+        area_element = Surface(
+            lambda u, v: np.array([
+                R * u * np.cos(v),
+                R * u * np.sin(v),
+                0.0,
+            ]),
+            u_range=[0, 1],
+            v_range=[0, TAU],
+            resolution=resolution,
+            checkerboard_colors=colors,
+        )
+
+        if not checkerboard:
+            area_element.set_stroke(width=stroke_width)
+
+        return area_element
+
+def get_area_element_normal(
+        R=1.5,
+        checkerboard=True,
+        color=NEON6,
+        resolution=(4, 32),
+        normal=np.array([0, 0, 1])
+    ):
+    stroke_width = 1.5
+
+    # Normalize the normal vector
+    n = normal / np.linalg.norm(normal)
+
+    # --- Build an orthonormal basis perpendicular to n ---
+    # Pick any vector not parallel to n
+    if abs(n[0]) < 0.9:
+        tmp = np.array([1.0, 0.0, 0.0])
+    else:
+        tmp = np.array([0.0, 1.0, 0.0])
+
+    e1 = np.cross(n, tmp)
+    e1 /= np.linalg.norm(e1)
+
+    e2 = np.cross(n, e1)
+
+    # Checkerboard colors
+    if checkerboard:
+        colors = [color, lighten_hex(color)]
+    else:
+        colors = [color, color]
+
+    # --- Surface perpendicular to n ---
+    # Local parameterization: disk of radius R
+    def param(u, v):
+        # u in [0,1], v in [0, 2π]
+        r = R * u
+        return r * np.cos(v) * e1 + r * np.sin(v) * e2
+
+    area_element = Surface(
+        param,
+        u_range=[0, 1],
+        v_range=[0, TAU],
+        resolution=resolution,
+        checkerboard_colors=colors,
+    )
+
+    if not checkerboard:
+        area_element.set_stroke(width=stroke_width)
+
+    return area_element
+
+class AreaElementRotationCauchy(ThreeDScene):
+    def construct(self):
+        self.set_camera_orientation(phi=70 * DEGREES, theta=-60 * DEGREES)
+
+        # Initial vector (normalized)
+        N0 = normalize(np.array([0,0,1]))
+
+        # ---- Tracker for time along the path ----
+        t_tracker = ValueTracker(0)
+
+        # ---- Arbitrary smooth path on the unit sphere that STARTS at N0 ----
+        def N_path(t):
+            angle = t  # one rotation if t ∈ [0, 2π]
+            R_y = np.array([
+                [ np.cos(angle), 0.0, np.sin(angle)],
+                [ 0.0,           1.0, 0.0          ],
+                [-np.sin(angle), 0.0, np.cos(angle)]
+            ])
+            N = R_y @ N0
+            return normalize(N)
+
+        # ---- Updaters ----
+        def get_N():
+            return N_path(t_tracker.get_value())
+
+        def get_t_inf():
+            return MY_sigma @ n_from_N(get_N())
+        
+        def get_pos(pos):
+            return rotate_vectors_to_normal(pos, get_N())
+        
+        def get_arrow_t_i(i):
+            return Arrow3D(
+                start=MY_F @ get_pos(MY_position_multiple2[:,i]),
+                end=MY_F @ get_pos(MY_position_multiple2[:,i]) + get_t_inf(),
+                color=COLOR_TRACTION,
+            )
+        
+        def get_arrow_n_i(i):
+            return Arrow3D(
+                start=MY_F @ get_pos(MY_position_multiple2[:,i]),
+                end=MY_F @ get_pos(MY_position_multiple2[:,i]) + n_from_N(get_N()),
+                color=COLOR_NORMAL,
+            )
+
+        # ---- Area element perpendicular to N(t) deformed by F ----
+        area_element = always_redraw(
+            lambda: get_area_element_normal(
+                normal=get_N()
+            ).copy().apply_matrix(MY_F)
+        )
+
+        # ---- Traction arrows ----
+        arrow_t_i = VGroup()
+        arrow_t_i.add(always_redraw(lambda: get_arrow_t_i(0)))
+        arrow_t_i.add(always_redraw(lambda: get_arrow_t_i(1)))
+        arrow_t_i.add(always_redraw(lambda: get_arrow_t_i(2)))
+        arrow_t_i.add(always_redraw(lambda: get_arrow_t_i(3)))
+        arrow_t_i.add(always_redraw(lambda: get_arrow_t_i(4)))
+        arrow_t_i.add(always_redraw(lambda: get_arrow_t_i(5)))
+        arrow_t_i.add(always_redraw(lambda: get_arrow_t_i(6)))
+        arrow_t_i.add(always_redraw(lambda: get_arrow_t_i(7)))
+
+        # ---- Normal arrow ----
+        arrow_n_i = VGroup()
+        arrow_n_i.add(always_redraw(lambda: get_arrow_n_i(0)))
+        arrow_n_i.add(always_redraw(lambda: get_arrow_n_i(1)))
+        arrow_n_i.add(always_redraw(lambda: get_arrow_n_i(2)))
+        arrow_n_i.add(always_redraw(lambda: get_arrow_n_i(3)))
+        arrow_n_i.add(always_redraw(lambda: get_arrow_n_i(4)))
+        arrow_n_i.add(always_redraw(lambda: get_arrow_n_i(5)))
+        arrow_n_i.add(always_redraw(lambda: get_arrow_n_i(6)))
+        arrow_n_i.add(always_redraw(lambda: get_arrow_n_i(7)))
+
+        # Add to scene
+        self.add(area_element)
+        self.add(arrow_t_i)
+        self.add(arrow_n_i)
+        coordinates = get_coordinates_3D(self).shift(3*DOWN + 2*LEFT)
+        self.add(coordinates)
+
+        # ---- Animate N along its path ----
+        self.wait(0.25)
+        self.play(
+            t_tracker.animate.set_value(2 * PI),
+            run_time=3,
+        )
+        self.wait(0.25)
+
+class AreaElementRotation1stPiola(ThreeDScene):
+    def construct(self):
+        self.set_camera_orientation(phi=70 * DEGREES, theta=-60 * DEGREES)
+
+        # Initial vector (normalized)
+        N0 = normalize(np.array([0,0,1]))
+
+        # ---- Tracker for time along the path ----
+        t_tracker = ValueTracker(0)
+
+        # ---- Arbitrary smooth path on the unit sphere that STARTS at N0 ----
+        def N_path(t):
+            angle = t  # one rotation if t ∈ [0, 2π]
+            R_y = np.array([
+                [ np.cos(angle), 0.0, np.sin(angle)],
+                [ 0.0,           1.0, 0.0          ],
+                [-np.sin(angle), 0.0, np.cos(angle)]
+            ])
+            N = R_y @ N0
+            return normalize(N)
+
+        # ---- Updaters ----
+        def get_N():
+            return N_path(t_tracker.get_value())
+
+        def get_t_inf():
+            return MY_P @ get_N()
+        
+        def get_pos(pos):
+            return rotate_vectors_to_normal(pos, get_N())
+        
+        def get_arrow_t_i(i):
+            return Arrow3D(
+                start=get_pos(MY_position_multiple2[:,i]),
+                end=get_pos(MY_position_multiple2[:,i]) + get_t_inf(),
+                color=COLOR_TRACTION,
+            )
+        
+        def get_arrow_n_i(i):
+            return Arrow3D(
+                start=get_pos(MY_position_multiple2[:,i]),
+                end=get_pos(MY_position_multiple2[:,i]) + get_N(),
+                color=COLOR_NORMAL,
+            )
+
+        # ---- Area element perpendicular to N(t) ----
+        area_element = always_redraw(
+            lambda: get_area_element_normal(
+                normal=get_N()
+            )
+        )
+
+        # ---- Traction arrows ----
+        arrow_t_i = VGroup()
+        arrow_t_i.add(always_redraw(lambda: get_arrow_t_i(0)))
+        arrow_t_i.add(always_redraw(lambda: get_arrow_t_i(1)))
+        arrow_t_i.add(always_redraw(lambda: get_arrow_t_i(2)))
+        arrow_t_i.add(always_redraw(lambda: get_arrow_t_i(3)))
+        arrow_t_i.add(always_redraw(lambda: get_arrow_t_i(4)))
+        arrow_t_i.add(always_redraw(lambda: get_arrow_t_i(5)))
+        arrow_t_i.add(always_redraw(lambda: get_arrow_t_i(6)))
+        arrow_t_i.add(always_redraw(lambda: get_arrow_t_i(7)))
+
+        # ---- Normal arrow ----
+        arrow_n_i = VGroup()
+        arrow_n_i.add(always_redraw(lambda: get_arrow_n_i(0)))
+        arrow_n_i.add(always_redraw(lambda: get_arrow_n_i(1)))
+        arrow_n_i.add(always_redraw(lambda: get_arrow_n_i(2)))
+        arrow_n_i.add(always_redraw(lambda: get_arrow_n_i(3)))
+        arrow_n_i.add(always_redraw(lambda: get_arrow_n_i(4)))
+        arrow_n_i.add(always_redraw(lambda: get_arrow_n_i(5)))
+        arrow_n_i.add(always_redraw(lambda: get_arrow_n_i(6)))
+        arrow_n_i.add(always_redraw(lambda: get_arrow_n_i(7)))
+
+        # Add to scene
+        self.add(area_element)
+        self.add(arrow_t_i)
+        self.add(arrow_n_i)
+
+        # ---- Animate N along its path ----
+        self.wait(0.25)
+        self.play(
+            t_tracker.animate.set_value(2 * PI),
+            run_time=3,
+        )
+        self.wait(0.25)
+
+class AreaElementRotation2ndPiola(ThreeDScene):
+    def construct(self):
+        self.set_camera_orientation(phi=70 * DEGREES, theta=-60 * DEGREES)
+
+        # Initial vector (normalized)
+        N0 = normalize(np.array([0,0,1]))
+
+        # ---- Tracker for time along the path ----
+        t_tracker = ValueTracker(0)
+
+        # ---- Arbitrary smooth path on the unit sphere that STARTS at N0 ----
+        def N_path(t):
+            angle = t  # one rotation if t ∈ [0, 2π]
+            R_y = np.array([
+                [ np.cos(angle), 0.0, np.sin(angle)],
+                [ 0.0,           1.0, 0.0          ],
+                [-np.sin(angle), 0.0, np.cos(angle)]
+            ])
+            N = R_y @ N0
+            return normalize(N)
+
+        # ---- Updaters ----
+        def get_N():
+            return N_path(t_tracker.get_value())
+
+        def get_t_inf():
+            return MY_S @ get_N()
+        
+        def get_pos(pos):
+            return rotate_vectors_to_normal(pos, get_N())
+        
+        def get_arrow_t_i(i):
+            return Arrow3D(
+                start=get_pos(MY_position_multiple2[:,i]),
+                end=get_pos(MY_position_multiple2[:,i]) + get_t_inf(),
+                color=COLOR_TRACTION,
+            )
+        
+        def get_arrow_n_i(i):
+            return Arrow3D(
+                start=get_pos(MY_position_multiple2[:,i]),
+                end=get_pos(MY_position_multiple2[:,i]) + get_N(),
+                color=COLOR_NORMAL,
+            )
+
+        # ---- Area element perpendicular to N(t) ----
+        area_element = always_redraw(
+            lambda: get_area_element_normal(
+                normal=get_N()
+            )
+        )
+
+        # ---- Traction arrows ----
+        arrow_t_i = VGroup()
+        arrow_t_i.add(always_redraw(lambda: get_arrow_t_i(0)))
+        arrow_t_i.add(always_redraw(lambda: get_arrow_t_i(1)))
+        arrow_t_i.add(always_redraw(lambda: get_arrow_t_i(2)))
+        arrow_t_i.add(always_redraw(lambda: get_arrow_t_i(3)))
+        arrow_t_i.add(always_redraw(lambda: get_arrow_t_i(4)))
+        arrow_t_i.add(always_redraw(lambda: get_arrow_t_i(5)))
+        arrow_t_i.add(always_redraw(lambda: get_arrow_t_i(6)))
+        arrow_t_i.add(always_redraw(lambda: get_arrow_t_i(7)))
+
+        # ---- Normal arrow ----
+        arrow_n_i = VGroup()
+        arrow_n_i.add(always_redraw(lambda: get_arrow_n_i(0)))
+        arrow_n_i.add(always_redraw(lambda: get_arrow_n_i(1)))
+        arrow_n_i.add(always_redraw(lambda: get_arrow_n_i(2)))
+        arrow_n_i.add(always_redraw(lambda: get_arrow_n_i(3)))
+        arrow_n_i.add(always_redraw(lambda: get_arrow_n_i(4)))
+        arrow_n_i.add(always_redraw(lambda: get_arrow_n_i(5)))
+        arrow_n_i.add(always_redraw(lambda: get_arrow_n_i(6)))
+        arrow_n_i.add(always_redraw(lambda: get_arrow_n_i(7)))
+
+        # Add to scene
+        self.add(area_element)
+        self.add(arrow_t_i)
+        self.add(arrow_n_i)
+
+        # ---- Animate N along its path ----
+        self.wait(0.25)
+        self.play(
+            t_tracker.animate.set_value(2 * PI),
+            run_time=3,
+        )
+        self.wait(0.25)
+
 class TensorComponents(MovingCameraScene):
     def construct(self):
         # constants

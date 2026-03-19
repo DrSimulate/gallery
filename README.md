@@ -199,7 +199,32 @@ Video link: [https://youtu.be/5G0rzB1X70k](https://youtu.be/5G0rzB1X70k)
 
 ```python
 # !!! full code in manim.py !!!
-
+class AreaElementRotationCauchy(ThreeDScene):
+    def construct(self):
+        N0 = normalize(np.array([0,0,1]))
+        t_tracker = ValueTracker(0)
+        def N_path(t):
+            angle = t  # one rotation if t ∈ [0, 2π]
+            R_y = np.array([
+                [ np.cos(angle), 0.0, np.sin(angle)],
+                [ 0.0,           1.0, 0.0          ],
+                [-np.sin(angle), 0.0, np.cos(angle)]
+            ])
+            N = R_y @ N0
+            return normalize(N)
+        area_element = always_redraw(
+            lambda: get_area_element_normal(
+                normal=get_N()
+            ).copy().apply_matrix(MY_F)
+        )
+        arrow_t_i = VGroup()
+        arrow_t_i.add(always_redraw(lambda: get_arrow_t_i(0)))
+        arrow_n_i = VGroup()
+        arrow_n_i.add(always_redraw(lambda: get_arrow_n_i(0)))
+        # animate
+        self.wait(0.25)
+        self.play(t_tracker.animate.set_value(2 * PI),run_time=3)
+        self.wait(0.25)
 ```
 
 ![Stress Tensors](/media/videos/gifs/gif_stress_area_elements.gif)
