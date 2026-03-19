@@ -223,6 +223,49 @@ class FiniteElements(MovingCameraScene):
 
 Description: Mesh refinement is visualized by sucessively increasing the number of finite elements.
 
+```python
+# !!! full code in manim.py !!!
+class FiniteElementsMeshRefinement(MovingCameraScene):
+    def construct(self):
+        ax_u = Axes(
+            x_range=[0, 1.05, 0.1],
+            y_range=[-0.5, 0.5, 1],
+            x_length=5.5,
+            y_length=1.75,
+            axis_config={"include_tip": False},
+        )
+        labels_u = VGroup(
+            MathTex(r"x").next_to(ax_u.coords_to_point(1.05, 0),RIGHT),
+            MathTex(r"u(x)").next_to(ax_u.coords_to_point(0, 0.5),UP,buff=0).shift(UP * 0.1),
+            )
+        graph_u_analytical = ax_u.plot(lambda x : 0.5*f*x**2 - 0.5*f*L*x, x_range=[0,1], use_smoothing=False, color=WHITE)
+        _, u2 = fem_1d_poisson(2, L=L, f=f)
+        graph_uN2 = ax_u.plot(lambda x : func_uN2(x,u2), x_range=[0,1], use_smoothing=False, color=YELLOW)
+        _, u3 = fem_1d_poisson(3, L=L, f=f)
+        graph_uN3 = ax_u.plot(lambda x : func_uN3(x,u3), x_range=[0,1], use_smoothing=False, color=YELLOW)
+        _, u4 = fem_1d_poisson(4, L=L, f=f)
+        graph_uN4 = ax_u.plot(lambda x : func_uN4(x,u4), x_range=[0,1], use_smoothing=False, color=YELLOW)
+        _, u5 = fem_1d_poisson(5, L=L, f=f)
+        graph_uN5 = ax_u.plot(lambda x : func_uN5(x,u5), x_range=[0,1], use_smoothing=False, color=YELLOW)
+        # animate
+        self.wait(0.25)
+        self.play(
+            FadeOut(v_lines_2, graph_uN2),
+            FadeIn(v_lines_3, graph_uN3),
+            )
+        self.wait(0.5)
+        self.play(
+            FadeOut(v_lines_3, graph_uN3),
+            FadeIn(v_lines_4, graph_uN4),
+            )
+        self.wait(0.5)
+        self.play(
+            FadeOut(v_lines_4, graph_uN4),
+            FadeIn(v_lines_5, graph_uN5),
+            )
+        self.wait(0.25)
+```
+
 ![Finite Elements](/media/videos/manim/480p15/FiniteElementsMeshRefinement_ManimCE_v0.18.1.gif)
 
 ## Blender
