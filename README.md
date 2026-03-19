@@ -191,6 +191,19 @@ class Kinematics2D(MovingCameraScene):
 
 ![Kinematics 2D - Deformation Gradient Tensor Field](/media/videos/manim/1080p60/KinematicsDeformationGradient2D_ManimCE_v0.18.1.gif)
 
+#### Example: Different Stress Tensors
+
+Description: Different stress tensors are visualized by animating undeformed and deformed area elements and tractions acting on them for a given state of deformation and stress at a material point. The Cauchy stress gives the current traction if multiplied by the normal of the deformed area element. Multiplying this traction by the area of the deformed element yields the current force. If multiplied by the normal of the undeformed area element, the first Piola-Kirchhoff stress gives an auxiliary current traction, which after multiplication by the area of the undeformed element yields the current force. Finally, the second Piola-Kirchhoff stress gives an auxiliary reference traction if multiplied by the normal of the undeformed area element. Multiplying this reference traction by the area of the undeformed element yields the reference force which is related to the current force by the inverse of the deformation gradient. Animating a rotation of the area elements, while updating the tractions accordingly, illustrates that stress tensors encode the tractions acting on arbitrarily oriented surfaces.
+
+Video link: [https://youtu.be/5G0rzB1X70k](https://youtu.be/5G0rzB1X70k)
+
+```python
+# !!! full code in manim.py !!!
+
+```
+
+![Stress Tensors](/media/videos/gifs/gif_stress_area_elements.gif)
+
 #### Example: Tensor Components
 
 Description: We visualize how the deformation gradient tensor transforms a set of unit vectors by illustrating their deformed images. In addition, we demonstrate how the tensor components change under a rotation of the basis. This example highlights that the physical transformation described by the tensor remains unchanged, even though its component representation depends on the chosen basis.
@@ -290,6 +303,8 @@ class FiniteElements(MovingCameraScene):
 #### Example: Finite Element Method - Mesh Refinement
 
 Description: Mesh refinement is visualized by sucessively increasing the number of finite elements.
+
+Video link: [https://youtu.be/1wSE6iQiScg](https://youtu.be/1wSE6iQiScg)
 
 ```python
 # !!! full code in manim.py !!!
