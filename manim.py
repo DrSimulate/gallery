@@ -874,12 +874,14 @@ class FiniteElementsMeshRefinement(MovingCameraScene):
         self.add(
             coord_u,
             graph_u_analytical,
-            v_lines_2,
-            graph_uN2,
             )
         
         # animate
         self.wait(0.25)
+        self.play(
+            FadeIn(v_lines_2, graph_uN2),
+            )
+        self.wait(0.5)
         self.play(
             FadeOut(v_lines_2, graph_uN2),
             FadeIn(v_lines_3, graph_uN3),
@@ -893,6 +895,10 @@ class FiniteElementsMeshRefinement(MovingCameraScene):
         self.play(
             FadeOut(v_lines_4, graph_uN4),
             FadeIn(v_lines_5, graph_uN5),
+            )
+        self.wait(0.5)
+        self.play(
+            FadeOut(v_lines_5, graph_uN5),
             )
         self.wait(0.25)
         
