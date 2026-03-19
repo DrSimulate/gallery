@@ -56,6 +56,74 @@ Description: Similar to the previous example, we visualize the individual compon
 
 Video link: [https://youtu.be/NtTVEzZS3Bg](https://youtu.be/NtTVEzZS3Bg)
 
+```python
+# !!! full code in matplotlib_animate.py !!!
+# cube
+r = np.linspace(-length/2, length/2, 3)
+x, y = np.meshgrid(r, r)
+z = np.zeros_like(x)
+# loop over stress components
+for i in range(6):
+    # animate
+    fig = plt.figure(figsize=(_figsize,_figsize),dpi=_dpi)
+    ax = plt.axes(projection='3d')
+    def animate(frame):
+        ax.cla()
+        plot_coo(ax,shift=np.zeros(3))
+        # plot cube faces
+        ax.plot_surface(x,y,-length/2.0*np.ones_like(x),alpha=.2,color=COLOR0)
+        ax.plot_surface(x,y,length/2.0*np.ones_like(x),alpha=.2,color=COLOR0)
+        ax.plot_surface(x,-length/2.0*np.ones_like(x),y,alpha=.2,color=COLOR0)
+        ax.plot_surface(x,length/2.0*np.ones_like(x),y,alpha=.2,color=COLOR0)
+        ax.plot_surface(-length/2.0*np.ones_like(x),x,y,alpha=.2,color=COLOR0)
+        ax.plot_surface(length/2.0*np.ones_like(x),x,y,alpha=.2,color=COLOR0)
+        if COMPONENT == 1:
+            sigma[0,0] = sigma_given
+            traction = np.matmul(sigma,normals_1_plus.T).T
+            plot_vector_field(ax,nodes_1_minus,-traction,color=COLOR0)
+            plot_vector_field(ax,nodes_1_plus,traction,color=COLOR0)
+        if COMPONENT == 2:
+            sigma[1,1] = sigma_given
+            traction = np.matmul(sigma,normals_2_plus.T).T
+            plot_vector_field(ax,nodes_2_minus,-traction,color=COLOR0)
+            plot_vector_field(ax,nodes_2_plus,traction,color=COLOR0)
+        if COMPONENT == 3:
+            sigma[2,2] = sigma_given
+            traction = np.matmul(sigma,normals_3_plus.T).T
+            plot_vector_field(ax,nodes_3_minus,-traction,color=COLOR0)
+            plot_vector_field(ax,nodes_3_plus,traction,color=COLOR0)
+        if COMPONENT == 4:
+            sigma[0,1] = sigma_given
+            sigma[1,0] = sigma_given
+            traction1 = np.matmul(sigma,normals_1_plus.T).T
+            traction2 = np.matmul(sigma,normals_2_plus.T).T
+            plot_vector_field(ax,nodes_1_minus,-traction1,color=COLOR0)
+            plot_vector_field(ax,nodes_1_plus,traction1,color=COLOR0)
+            plot_vector_field(ax,nodes_2_minus,-traction2,color=COLOR0)
+            plot_vector_field(ax,nodes_2_plus,traction2,color=COLOR0)
+        if COMPONENT == 5:
+            sigma[0,2] = sigma_given
+            sigma[2,0] = sigma_given
+            traction1 = np.matmul(sigma,normals_1_plus.T).T
+            traction3 = np.matmul(sigma,normals_3_plus.T).T
+            plot_vector_field(ax,nodes_1_minus,-traction1,color=COLOR0)
+            plot_vector_field(ax,nodes_1_plus,traction1,color=COLOR0)
+            plot_vector_field(ax,nodes_3_minus,-traction3,color=COLOR0)
+            plot_vector_field(ax,nodes_3_plus,traction3,color=COLOR0)
+        if COMPONENT == 6:
+            sigma[1,2] = sigma_given
+            sigma[2,1] = sigma_given
+            traction2 = np.matmul(sigma,normals_2_plus.T).T
+            traction3 = np.matmul(sigma,normals_3_plus.T).T
+            plot_vector_field(ax,nodes_2_minus,-traction2,color=COLOR0)
+            plot_vector_field(ax,nodes_2_plus,traction2,color=COLOR0)
+            plot_vector_field(ax,nodes_3_minus,-traction3,color=COLOR0)
+            plot_vector_field(ax,nodes_3_plus,traction3,color=COLOR0)
+    ani = animation.FuncAnimation(fig,animate,frames=FACTOR_FRAMES*FRAMES,interval=1/0.03)
+    ani.save(_path + '.mov',codec="png",dpi=_dpi,bitrate=-1,savefig_kwargs={"transparent": True, "facecolor": "none"})
+    
+```
+
 ![Stress Tensor Components](/media/videos/gifs/gif_stress_components_cube.gif)
 
 ## Manim

@@ -414,12 +414,10 @@ class FiniteElementsMeshRefinement(MovingCameraScene):
             MathTex(r"x").next_to(ax_u.coords_to_point(1.05, 0),RIGHT),
             MathTex(r"u(x)").next_to(ax_u.coords_to_point(0, 0.5),UP,buff=0).shift(UP * 0.1),
             )
-
-                
+      
         coord_u = VGroup(ax_u, labels_u)
 
         graph_u_analytical = ax_u.plot(lambda x : 0.5*f*x**2 - 0.5*f*L*x, x_range=[0,1], use_smoothing=False, color=WHITE)
-        
         
         v_lines_2 = get_v_lines(ax_u,[1/2,1])
         v_lines_3 = get_v_lines(ax_u,[1/3,2/3,1])
@@ -430,12 +428,6 @@ class FiniteElementsMeshRefinement(MovingCameraScene):
         func_uN3 = get_func_uN3()
         func_uN4 = get_func_uN4()
         _, _, _, _, _, _, func_uN5, _, _ = get_func_uN()
-
-        def pad_with_zeros(v, target_size):
-            out = np.zeros(target_size, dtype=v.dtype)
-            n = min(len(v), target_size)
-            out[:n] = v[:n]
-            return out
 
         _, u2 = fem_1d_poisson(2, L=L, f=f)
         graph_uN2 = ax_u.plot(lambda x : func_uN2(x,u2), x_range=[0,1], use_smoothing=False, color=YELLOW)
